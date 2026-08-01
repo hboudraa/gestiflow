@@ -7,7 +7,7 @@
     <option name="selectedModelId" value="auto" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f34e6dfc-30dc-4848-ab15-b2920b9e698f" name="Changes" comment="" />
+    <list default="true" id="f34e6dfc-30dc-4848-ab15-b2920b9e698f" name="Changes" comment="gestiflow" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,29 +24,32 @@
   <component name="EmbeddingIndexingInfo">
     <option name="cachedIndexableFilesCount" value="217" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.2724957018471195" />
-      <entry key="MS500" value="2.6137041956922573" />
-      <entry key="S2" value="6.137649096935117" />
-      <entry key="S5" value="11.465499144323044" />
-      <entry key="S10" value="18.068107690393703" />
-      <entry key="S30" value="30.449198306742943" />
-      <entry key="S60" value="36.23033204484339" />
-      <entry key="M2" value="39.82217240988973" />
-      <entry key="M5" value="42.583596036279474" />
-      <entry key="M10" value="49.909714604245984" />
-      <entry key="M15" value="62.75285625918985" />
-      <entry key="M30" value="109.98099026572747" />
-      <entry key="H1" value="204.52872011721385" />
-      <entry key="H2" value="336.2261968370928" />
-      <entry key="H4" value="462.7818908468679" />
-      <entry key="D1" value="633.6691498371774" />
-      <entry key="W1" value="672.2372038129058" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.000000037513887" />
+      <entry key="S2" value="1.0139170765719794" />
+      <entry key="S5" value="1.180891943189791" />
+      <entry key="S10" value="1.4258175402405966" />
+      <entry key="S30" value="2.914144633270112" />
+      <entry key="S60" value="10.478028590061228" />
+      <entry key="M2" value="25.665688410122613" />
+      <entry key="M5" value="45.98997315484342" />
+      <entry key="M10" value="61.3302779888179" />
+      <entry key="M15" value="76.5341784059285" />
+      <entry key="M30" value="125.73283901869591" />
+      <entry key="H1" value="221.31191694926804" />
+      <entry key="H2" value="354.46380357718374" />
+      <entry key="H4" value="482.86394561328046" />
+      <entry key="D1" value="656.7824762100007" />
+      <entry key="W1" value="696.1029952237727" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -68,23 +71,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.246306922691054" />
-      <entry key="MS500" value="2.602241242745183" />
-      <entry key="S2" value="6.130288481644518" />
-      <entry key="S5" value="11.459846969709517" />
-      <entry key="S10" value="18.063606417878393" />
-      <entry key="S30" value="30.446651163767857" />
-      <entry key="S60" value="36.228813513246784" />
-      <entry key="M2" value="39.82133694254893" />
-      <entry key="M5" value="42.583238161859896" />
-      <entry key="M10" value="49.90950137801948" />
-      <entry key="M15" value="62.75266805361148" />
-      <entry key="M30" value="109.98077525300614" />
-      <entry key="H1" value="204.52846314801275" />
-      <entry key="H2" value="336.2259640797087" />
-      <entry key="H4" value="462.78172601949643" />
-      <entry key="D1" value="633.6691117660546" />
-      <entry key="W1" value="672.2371980371805" />
+      <entry key="MS100" value="9.436176292703827E-25" />
+      <entry key="MS500" value="1.5703242360280172E-5" />
+      <entry key="S2" value="0.07680108103846836" />
+      <entry key="S5" value="0.5114885495869474" />
+      <entry key="S10" value="1.0007465591617872" />
+      <entry key="S30" value="2.745487318484637" />
+      <entry key="S60" value="10.38933309855898" />
+      <entry key="M2" value="25.619848860309034" />
+      <entry key="M5" value="45.97113744473245" />
+      <entry key="M10" value="61.32073155074376" />
+      <entry key="M15" value="76.52774832827133" />
+      <entry key="M30" value="125.72949611579112" />
+      <entry key="H1" value="221.31009518038198" />
+      <entry key="H2" value="354.462787478913" />
+      <entry key="H4" value="482.86338842603624" />
+      <entry key="D1" value="656.7823725541532" />
+      <entry key="W1" value="696.1029800720498" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -110,33 +113,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Django Server.gestiflow.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.python manage.py migrate.executor&quot;: &quot;Run&quot;,
-    &quot;Python.python manage.py runserver.executor&quot;: &quot;Run&quot;,
-    &quot;Python.setup_part6b (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.setup_part6b.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;settings.editor.splitter.proportion&quot;: &quot;0.30120483&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Django Server.gestiflow.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.python manage.py migrate.executor": "Run",
+    "Python.python manage.py runserver.executor": "Run",
+    "Python.setup_part6b (1).executor": "Run",
+    "Python.setup_part6b.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "django.template.preview.state": "SHOW_EDITOR",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.splitter.proportion": "0.30120483",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Python.python manage.py runserver">
     <configuration name="python manage.py migrate" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="gestiflow" />
@@ -293,10 +297,23 @@
       <workItem from="1784482325465" duration="1891000" />
       <workItem from="1784844955157" duration="1200000" />
     </task>
+    <task id="LOCAL-00001" summary="gestiflow">
+      <option name="closed" value="true" />
+      <created>1785618382026</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1785618382026</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="gestiflow" />
+    <option name="LAST_COMMIT_MESSAGE" value="gestiflow" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/gestiflow$setup_part6b__1_.coverage" NAME="setup_part6b (1) Coverage Results" MODIFIED="1784396811757" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../Downloads" />
