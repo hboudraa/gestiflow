@@ -1,0 +1,11 @@
+Django
+django-environ
+django-crispy-forms
+crispy-bootstrap5
+Pillow
+reportlab
+openpyxl
+django-import-export
+whitenoise
+gunicorn
+psycopg2-binary

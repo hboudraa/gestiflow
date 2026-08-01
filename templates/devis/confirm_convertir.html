@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Convertir{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-12 col-md-6">
+  <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-arrow-right-circle me-2 text-success"></i>Convertir &mdash; {{ devis.numero }}</h6></div>
+  <div class="card-body">
+    <p>Convertir <strong>{{ devis.numero }}</strong> ({{ devis.client.nom }}) en facture ?</p>
+    <p style="color:var(--text-secondary);font-size:13px;">Montant : {{ devis.total_ttc|floatformat:2|intcomma }} DA</p>
+    <form method="post">{% csrf_token %}
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-check-lg me-1"></i>Confirmer</button>
+      <a href="{% url 'devis:detail' devis.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

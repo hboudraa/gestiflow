@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Paiements{% endblock %}
+{% block topbar_title %}Historique des paiements{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-cash-stack me-2 text-success"></i>Paiements</h1>
+  <p class="page-subtitle">Total : <strong style="color:var(--primary);">{{ total_encaisse|floatformat:2|intcomma }} DA</strong></p></div>
+</div>
+<div class="card mb-4"><div class="card-body py-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-12 col-md-5"><input type="text" name="q" class="form-control" placeholder="N° facture, client..." value="{{ q }}"></div>
+    <div class="col-12 col-md-3"><select name="mode" class="form-select"><option value="">Tous modes</option>{% for val, lbl in modes %}<option value="{{ val }}" {% if mode == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}</select></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Filtrer</button><a href="{% url 'ventes:paiements_liste' %}" class="btn btn-outline-secondary ms-1">Reset</a></div>
+  </form>
+</div></div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Date</th><th>Facture</th><th>Client</th><th>Mode</th><th>Référence</th><th class="text-end">Montant</th></tr></thead>
+  <tbody>{% for p in paiements %}<tr>
+    <td style="font-size:12.5px;color:var(--text-secondary);">{{ p.date_paiement|date:"d/m/Y" }}</td>
+    <td><a href="{% url 'ventes:detail' p.facture.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ p.facture.numero }}</a></td>
+    <td style="font-weight:500;">{{ p.facture.client.nom }}</td>
+    <td><span class="badge bg-secondary-subtle text-secondary" style="font-size:11px;">{{ p.get_mode_display }}</span></td>
+    <td style="font-size:12.5px;color:var(--text-secondary);">{{ p.reference|default:"&mdash;" }}</td>
+    <td class="text-end" style="font-weight:700;color:#10b981;">{{ p.montant|floatformat:2|intcomma }} DA</td>
+  </tr>{% empty %}<tr><td colspan="6" class="text-center py-4" style="color:var(--text-secondary);">Aucun paiement</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

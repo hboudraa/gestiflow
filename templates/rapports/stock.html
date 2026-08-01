@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Rapport stock{% endblock %}
+{% block topbar_title %}Rapport stock{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-box-seam me-2 text-warning"></i>Rapport stock</h1>
+  <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4"><div class="kpi-card"><div class="kpi-icon orange"><i class="bi bi-currency-exchange"></i></div><div><div class="kpi-value">{{ valeur_totale|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Valeur stock (achat)</div></div></div></div>
+  <div class="col-6 col-md-4"><div class="kpi-card"><div class="kpi-icon blue"><i class="bi bi-box-seam"></i></div><div><div class="kpi-value">{{ produits|length }}</div><div class="kpi-label">Produits actifs</div></div></div></div>
+</div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Référence</th><th>Produit</th><th>Catégorie</th><th class="text-end">Stock</th><th class="text-end">PU Achat</th><th class="text-end">Valeur</th></tr></thead>
+  <tbody>{% for p in produits %}<tr>
+    <td><code style="font-size:12px;color:var(--primary);">{{ p.reference }}</code></td>
+    <td style="font-weight:500;">{{ p.nom }}</td>
+    <td style="color:var(--text-secondary);font-size:12.5px;">{{ p.categorie.nom|default:"&mdash;" }}</td>
+    <td class="text-end" style="font-weight:700;color:{% if p.quantite_stock == 0 %}#ef4444{% elif p.en_alerte %}#f59e0b{% else %}#10b981{% endif %};">{{ p.quantite_stock|floatformat:"-2" }} {{ p.unite }}</td>
+    <td class="text-end">{{ p.prix_achat|floatformat:2|intcomma }} DA</td>
+    <td class="text-end" style="font-weight:700;color:var(--primary);">{{ p.quantite_stock|floatformat:2|default:0 }} &times; {{ p.prix_achat|floatformat:2 }}</td>
+  </tr>{% empty %}<tr><td colspan="6" class="text-center py-5" style="color:var(--text-secondary);">Aucun produit</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

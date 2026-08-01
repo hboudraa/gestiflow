@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Achats{% endblock %}
+{% block topbar_title %}Achats fournisseurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-cart3 me-2 text-secondary"></i>Achats</h1></div>
+  <a href="{% url 'achats:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvel achat</a>
+</div>
+<form method="get" class="d-flex gap-2 mb-4 flex-wrap">
+  <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="N° achat, fournisseur..." style="max-width:280px;">
+  <select name="statut" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
+    <option value="">Tous statuts</option>
+    {% for val, lbl in statuts %}<option value="{{ val }}" {% if statut == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+</form>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>N°</th><th>Fournisseur</th><th>Date</th><th class="text-end">Total TTC</th><th>Statut</th><th></th></tr></thead>
+  <tbody>{% for a in achats %}<tr>
+    <td><a href="{% url 'achats:detail' a.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ a.numero }}</a></td>
+    <td style="font-weight:500;">{{ a.fournisseur.nom }}</td>
+    <td style="color:var(--text-secondary);font-size:12.5px;">{{ a.date_achat|date:"d/m/Y" }}</td>
+    <td class="text-end" style="font-weight:600;">{{ a.total_ttc|floatformat:2|intcomma }} DA</td>
+    <td><span class="badge-status badge-{{ a.statut }}" style="font-size:10px;">{{ a.get_statut_display }}</span></td>
+    <td><a href="{% url 'achats:detail' a.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-eye"></i></a></td>
+  </tr>{% empty %}<tr><td colspan="6" class="text-center py-5" style="color:var(--text-secondary);">Aucun achat</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

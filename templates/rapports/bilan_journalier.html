@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Bilan journalier{% endblock %}
+{% block topbar_title %}Bilan journalier &mdash; {{ aujourd_hui|date:"d/m/Y" }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-calendar-check me-2 text-primary"></i>Bilan journalier &mdash; {{ aujourd_hui|date:"d/m/Y" }}</h1>
+  <div class="d-flex gap-2">
+    <a href="?pdf=1" class="btn btn-primary" target="_blank"><i class="bi bi-file-pdf me-1"></i>PDF</a>
+    <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-cash-coin"></i></div><div><div class="kpi-value">{{ ca_jour|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">CA du jour</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon blue"><i class="bi bi-cash-stack"></i></div><div><div class="kpi-value">{{ paiements_jour|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Encaissé du jour</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon purple"><i class="bi bi-receipt"></i></div><div><div class="kpi-value">{{ nb_factures }}</div><div class="kpi-label">Factures du jour</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon orange"><i class="bi bi-exclamation-triangle"></i></div><div><div class="kpi-value">{{ alertes_stock }}</div><div class="kpi-label">Alertes stock</div></div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-7">
+    <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-receipt me-2 text-success"></i>Factures du jour</h6></div>
+      <table class="table-modern"><thead><tr><th>N°</th><th>Client</th><th class="text-end">Total TTC</th><th>Statut</th></tr></thead>
+      <tbody>{% for f in factures_jour %}<tr>
+        <td><a href="{% url 'ventes:detail' f.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ f.numero }}</a></td>
+        <td style="font-weight:500;">{{ f.client.nom }}</td>
+        <td class="text-end" style="font-weight:600;">{{ f.total_ttc|floatformat:2|intcomma }} DA</td>
+        <td><span class="badge-status badge-{{ f.statut }}" style="font-size:10px;">{{ f.get_statut_display }}</span></td>
+      </tr>{% empty %}<tr><td colspan="4" class="text-center py-4" style="color:var(--text-secondary);">Aucune facture aujourd'hui</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+  <div class="col-12 col-md-5">
+    <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-tools me-2 text-warning"></i>Services terminés</h6></div>
+      <table class="table-modern"><thead><tr><th>N°</th><th>Client</th><th class="text-end">Total</th></tr></thead>
+      <tbody>{% for s in services_termines %}<tr>
+        <td><a href="{% url 'services:detail' s.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ s.numero }}</a></td>
+        <td style="font-weight:500;">{{ s.client.nom }}</td>
+        <td class="text-end" style="font-weight:600;">{{ s.total_ttc|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="3" class="text-center py-4" style="color:var(--text-secondary);">Aucun service terminé aujourd'hui</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+</div>
+{% endblock %}

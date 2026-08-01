@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ achat.numero }}{% endblock %}
+{% block topbar_title %}Achat fournisseur{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-cart3 me-2 text-secondary"></i>{{ achat.numero }}</h1>
+  <p class="page-subtitle">{{ achat.fournisseur.nom }} &middot; <span class="badge-status badge-{{ achat.statut }}">{{ achat.get_statut_display }}</span></p></div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if achat.statut == 'en_attente' %}<form method="post" action="{% url 'achats:receptionner' achat.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-success" onclick="return confirm('Réceptionner et mettre à jour le stock ?')"><i class="bi bi-check-lg me-1"></i>Réceptionner</button></form>{% endif %}
+    {% if achat.statut == 'receptionne' %}<form method="post" action="{% url 'achats:payer' achat.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-primary"><i class="bi bi-cash me-1"></i>Marquer payé</button></form>{% endif %}
+    <a href="{% url 'achats:imprimer' achat.pk %}" class="btn btn-outline-primary" target="_blank"><i class="bi bi-printer me-1"></i>PDF</a>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-8">
+    <div class="card"><div class="card-header"><h6 class="card-title">Lignes</h6></div>
+    <div style="overflow-x:auto;"><table class="table-modern">
+      <thead><tr><th>Produit</th><th class="text-end">Qté</th><th class="text-end">PU HT</th><th class="text-end">TVA</th><th class="text-end">Total HT</th></tr></thead>
+      <tbody>{% for l in achat.lignes.all %}<tr>
+        <td style="font-weight:500;">{{ l.designation|default:l.produit.nom }}</td>
+        <td class="text-end">{{ l.quantite|floatformat:"-2" }}</td>
+        <td class="text-end">{{ l.prix_unitaire_ht|floatformat:2|intcomma }} DA</td>
+        <td class="text-end" style="color:var(--text-secondary);">{{ l.tva }}%</td>
+        <td class="text-end" style="font-weight:700;color:var(--primary);">{{ l.total_ht|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="5" class="text-center py-3" style="color:var(--text-secondary);">Aucune ligne</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card mb-3"><div class="card-header"><h6 class="card-title">Totaux</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Total HT</span><span>{{ achat.total_ht|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-3 pb-3 border-bottom"><span style="color:var(--text-secondary);">TVA</span><span>{{ achat.total_tva|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between"><strong>Total TTC</strong><strong style="color:var(--primary);font-size:15px;">{{ achat.total_ttc|floatformat:2|intcomma }} DA</strong></div>
+    </div></div>
+    <div class="card"><div class="card-header"><h6 class="card-title">Informations</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Fournisseur</span><a href="{% url 'fournisseurs:detail' achat.fournisseur.pk %}" style="font-weight:500;text-decoration:none;">{{ achat.fournisseur.nom }}</a></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Date achat</span><span style="font-size:12.5px;">{{ achat.date_achat|date:"d/m/Y" }}</span></div>
+      {% if achat.date_reception %}<div class="d-flex justify-content-between"><span style="color:var(--text-secondary);">Réceptionné</span><span style="font-size:12.5px;color:#10b981;">{{ achat.date_reception|date:"d/m/Y" }}</span></div>{% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

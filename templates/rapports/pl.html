@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Compte de résultat{% endblock %}
+{% block topbar_title %}Compte de résultat (P&amp;L){% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Compte de résultat</h1>
+  <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+<div class="card mb-4 no-print"><div class="card-body py-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto"><label class="form-label">Du</label><input type="date" name="debut" class="form-control" value="{{ debut }}"></div>
+    <div class="col-auto"><label class="form-label">Au</label><input type="date" name="fin" class="form-control" value="{{ fin }}"></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Actualiser</button></div>
+  </form>
+</div></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-cash-coin"></i></div><div><div class="kpi-value">{{ ca_ht|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">CA HT ({{ nb_factures }} fact.)</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon red"><i class="bi bi-cart3"></i></div><div><div class="kpi-value">{{ cout_achats_ht|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Coût achats ({{ nb_achats }})</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon purple"><i class="bi bi-bar-chart-steps"></i></div><div><div class="kpi-value">{{ marge_brute|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Marge brute ({{ taux_marge|floatformat:1 }}%)</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon {% if resultat_net >= 0 %}green{% else %}red{% endif %}"><i class="bi bi-piggy-bank"></i></div><div><div class="kpi-value">{{ resultat_net|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Résultat net</div></div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <div class="card"><div class="card-header"><h6 class="card-title">Détail</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2 pb-2 border-bottom"><span style="color:var(--text-secondary);">Chiffre d'affaires HT</span><span style="font-weight:600;">{{ ca_ht|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-2 pb-2 border-bottom"><span style="color:var(--text-secondary);">Chiffre d'affaires TTC</span><span>{{ ca_ttc|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-2 pb-2 border-bottom"><span style="color:#ef4444;">&mdash; Coût des achats HT</span><span style="color:#ef4444;">&mdash;{{ cout_achats_ht|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-2 pb-2 border-bottom"><strong>= Marge brute</strong><strong style="color:var(--primary);">{{ marge_brute|floatformat:2|intcomma }} DA</strong></div>
+      <div class="d-flex justify-content-between mb-2 pb-2 border-bottom"><span style="color:#ef4444;">&mdash; Dépenses caisse</span><span style="color:#ef4444;">&mdash;{{ depenses_caisse|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between"><strong style="font-size:16px;">= Résultat net</strong><strong style="font-size:16px;color:{% if resultat_net >= 0 %}#10b981{% else %}#ef4444{% endif %};">{{ resultat_net|floatformat:2|intcomma }} DA</strong></div>
+    </div></div>
+  </div>
+  <div class="col-12 col-md-6">
+    <div class="card"><div class="card-header"><h6 class="card-title">Dépenses par catégorie</h6></div>
+      <table class="table-modern"><thead><tr><th>Catégorie</th><th class="text-end">Montant</th></tr></thead>
+      <tbody>{% for d in depenses_par_categorie %}<tr>
+        <td style="font-weight:500;">{{ d.categorie__nom|default:"Sans catégorie" }}</td>
+        <td class="text-end" style="font-weight:600;color:#ef4444;">{{ d.total|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="2" class="text-center py-3" style="color:var(--text-secondary);">Aucune dépense</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

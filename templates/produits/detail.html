@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ produit.nom }}{% endblock %}
+{% block topbar_title %}Fiche produit{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><i class="bi bi-box-seam me-2" style="color:#f59e0b;"></i>{{ produit.nom }}</h1>
+    <p class="page-subtitle"><code>{{ produit.reference }}</code> &middot; {{ produit.categorie.nom|default:"Sans catégorie" }}</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'produits:edit' produit.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    <a href="{% url 'produits:ajuster_stock' produit.pk %}" class="btn btn-outline-primary"><i class="bi bi-sliders me-1"></i>Ajuster stock</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-4">
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="card-title">Stock</h6></div>
+      <div class="card-body text-center">
+        <div style="font-size:36px;font-weight:800;color:{% if produit.quantite_stock == 0 %}#ef4444{% elif produit.en_alerte %}#f59e0b{% else %}#10b981{% endif %};">{{ produit.quantite_stock|floatformat:"-2" }}</div>
+        <div style="font-size:13px;color:var(--text-secondary);">{{ produit.get_unite_display }} (seuil : {{ produit.seuil_alerte|floatformat:"-2" }})</div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="card-title">Prix</h6></div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Achat HT</span><span>{{ produit.prix_achat|floatformat:2|intcomma }} DA</span></div>
+        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Vente HT</span><strong>{{ produit.prix_vente|floatformat:2|intcomma }} DA</strong></div>
+        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Vente TTC</span><strong style="color:var(--primary);">{{ produit.prix_vente_ttc|floatformat:2|intcomma }} DA</strong></div>
+        <div class="d-flex justify-content-between pt-2 border-top"><span style="color:var(--text-secondary);">Marge</span><strong style="color:{% if produit.marge_brute > 0 %}#10b981{% else %}#ef4444{% endif %};">{{ produit.marge_brute|floatformat:1 }}%</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h6 class="card-title">Informations</h6></div>
+      <div class="card-body">
+        <p><strong>Référence :</strong> <code>{{ produit.reference }}</code></p>
+        <p><strong>Unité :</strong> {{ produit.get_unite_display }}</p>
+        <p><strong>TVA :</strong> {{ produit.tva }}%</p>
+        {% if produit.fournisseur %}<p><strong>Fournisseur :</strong> {{ produit.fournisseur.nom }}</p>{% endif %}
+        {% if produit.description %}<p style="font-size:13px;color:var(--text-secondary);">{{ produit.description }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-8">
+    {% if mouvements %}
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-arrow-left-right me-2 text-primary"></i>Mouvements récents</h6></div>
+      <div style="overflow-x:auto;"><table class="table-modern">
+        <thead><tr><th>Date</th><th>Type</th><th class="text-end">Qté</th><th class="text-end">Avant</th><th class="text-end">Après</th><th>Raison</th></tr></thead>
+        <tbody>{% for m in mouvements %}<tr>
+          <td style="font-size:12px;color:var(--text-secondary);">{{ m.cree_le|date:"d/m/Y H:i" }}</td>
+          <td><span class="badge bg-secondary-subtle text-secondary" style="font-size:10px;">{{ m.get_type_mouvement_display }}</span></td>
+          <td class="text-end" style="font-weight:600;">{{ m.quantite|floatformat:"-2" }}</td>
+          <td class="text-end" style="color:var(--text-secondary);">{{ m.stock_avant|floatformat:"-2" }}</td>
+          <td class="text-end" style="font-weight:600;">{{ m.stock_apres|floatformat:"-2" }}</td>
+          <td style="font-size:12px;color:var(--text-secondary);">{{ m.raison|default:"—" }}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    {% endif %}
+    {% if historique_prix %}
+    <div class="card">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-clock-history me-2 text-warning"></i>Historique prix</h6></div>
+      <div style="overflow-x:auto;"><table class="table-modern">
+        <thead><tr><th>Date</th><th class="text-end">Anc. achat</th><th class="text-end">Nouv. achat</th><th class="text-end">Anc. vente</th><th class="text-end">Nouv. vente</th></tr></thead>
+        <tbody>{% for h in historique_prix %}<tr>
+          <td style="font-size:12px;color:var(--text-secondary);">{{ h.cree_le|date:"d/m/Y H:i" }}</td>
+          <td class="text-end" style="font-size:12.5px;color:var(--text-secondary);">{{ h.ancien_prix_achat|floatformat:2 }}</td>
+          <td class="text-end" style="font-size:12.5px;font-weight:600;color:{% if h.nouveau_prix_achat > h.ancien_prix_achat %}#ef4444{% else %}#10b981{% endif %};">{{ h.nouveau_prix_achat|floatformat:2 }}</td>
+          <td class="text-end" style="font-size:12.5px;color:var(--text-secondary);">{{ h.ancien_prix_vente|floatformat:2 }}</td>
+          <td class="text-end" style="font-size:12.5px;font-weight:600;color:{% if h.nouveau_prix_vente > h.ancien_prix_vente %}#10b981{% else %}#ef4444{% endif %};">{{ h.nouveau_prix_vente|floatformat:2 }}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

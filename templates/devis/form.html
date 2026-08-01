@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ titre }}{% endblock %}
+{% block topbar_title %}{{ titre }}{% endblock %}
+{% block content %}
+<div class="page-header"><h1 class="page-title">{{ titre }}</h1></div>
+<form method="post" id="mainForm">{% csrf_token %}
+  <div class="row g-3">
+    <div class="col-12 col-md-8">
+      <div class="card mb-3"><div class="card-header"><h6 class="card-title">Informations</h6></div>
+      <div class="card-body"><div class="row g-3">
+        {% for field in form %}<div class="col-12 col-md-{% if field.name in 'notes,conditions' %}12{% else %}6{% endif %}">
+          <label class="form-label">{{ field.label }}</label>{{ field }}
+          {% if field.errors %}<div class="text-danger" style="font-size:12px;">{{ field.errors }}</div>{% endif %}
+        </div>{% endfor %}
+      </div></div></div>
+      <div class="card"><div class="card-header"><h6 class="card-title">Lignes</h6>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addLigne()"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+      </div><div class="card-body" id="lignesContainer"><p class="text-secondary text-center py-3">Aucune ligne</p></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card mb-3"><div class="card-header"><h6 class="card-title">Totaux</h6></div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Sous-total HT</span><span id="sousTotal">0,00 DA</span></div>
+        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">TVA</span><span id="totalTva">0,00 DA</span></div>
+        <div class="d-flex justify-content-between pt-2 border-top"><strong>Total TTC</strong><strong style="color:var(--primary);" id="totalTtc">0,00 DA</strong></div>
+      </div></div>
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">Annuler</a>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" name="lignes_json" id="lignesJson" value="{{ lignes_initiales_json }}">
+</form>
+{% endblock %}
+{% block extra_js %}
+<script>
+const TVA_DEF=19;let lignes=JSON.parse(document.getElementById('lignesJson').value||'[]');
+function fmt(n){return parseFloat(n||0).toLocaleString('fr-DZ',{minimumFractionDigits:2,maximumFractionDigits:2})+' DA';}
+function calcTotal(){let ht=0,tva=0;lignes.forEach(l=>{const lht=(l.quantite||0)*(l.prix_unitaire_ht||0)*(1-(l.remise||0)/100);ht+=lht;tva+=lht*(l.tva||TVA_DEF)/100;});
+  document.getElementById('sousTotal').textContent=fmt(ht);document.getElementById('totalTva').textContent=fmt(tva);document.getElementById('totalTtc').textContent=fmt(ht+tva);document.getElementById('lignesJson').value=JSON.stringify(lignes);}
+function renderLignes(){const c=document.getElementById('lignesContainer');
+  if(!lignes.length){c.innerHTML='<p class="text-secondary text-center py-3">Aucune ligne</p>';calcTotal();return;}
+  c.innerHTML=lignes.map((l,i)=>`<div class="mb-2 p-3" style="background:var(--bg-body);border-radius:8px;border:1px solid var(--border-color);"><div class="row g-2 align-items-end">
+    <div class="col-12 col-md-4"><label class="form-label" style="font-size:11px;">Désignation</label><input type="text" class="form-control form-control-sm" value="${l.designation||''}" onchange="lignes[${i}].designation=this.value;calcTotal()"></div>
+    <div class="col-6 col-md-1"><label class="form-label" style="font-size:11px;">Qté</label><input type="number" class="form-control form-control-sm" value="${l.quantite||1}" min="0.01" step="0.01" onchange="lignes[${i}].quantite=parseFloat(this.value)||1;calcTotal()"></div>
+    <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">PU HT</label><input type="number" class="form-control form-control-sm" value="${l.prix_unitaire_ht||0}" min="0" step="0.01" onchange="lignes[${i}].prix_unitaire_ht=parseFloat(this.value)||0;calcTotal()"></div>
+    <div class="col-4 col-md-1"><label class="form-label" style="font-size:11px;">Rem%</label><input type="number" class="form-control form-control-sm" value="${l.remise||0}" min="0" max="100" step="0.5" onchange="lignes[${i}].remise=parseFloat(this.value)||0;calcTotal()"></div>
+    <div class="col-4 col-md-1"><label class="form-label" style="font-size:11px;">TVA%</label><input type="number" class="form-control form-control-sm" value="${l.tva||TVA_DEF}" step="0.01" onchange="lignes[${i}].tva=parseFloat(this.value)||TVA_DEF;calcTotal()"></div>
+    <div class="col-3 col-md-2 text-end"><label class="form-label" style="font-size:11px;">Total</label><div style="font-size:13px;font-weight:700;color:var(--primary);padding:6px 0;">${fmt((l.quantite||1)*(l.prix_unitaire_ht||0)*(1-(l.remise||0)/100))}</div></div>
+    <div class="col-1"><button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="removeLigne(${i})"><i class="bi bi-trash"></i></button></div>
+  </div></div>`).join('');calcTotal();}
+function addLigne(){lignes.push({designation:'',quantite:1,prix_unitaire_ht:0,remise:0,tva:TVA_DEF,produit_id:null});renderLignes();}
+function removeLigne(i){lignes.splice(i,1);renderLignes();}
+renderLignes();
+</script>
+{% endblock %}

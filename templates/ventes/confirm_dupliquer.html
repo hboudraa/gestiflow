@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Dupliquer{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-12 col-md-6">
+  <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-copy me-2 text-primary"></i>Dupliquer &mdash; {{ objet.numero }}</h6></div>
+  <div class="card-body"><p>Créer une copie de <strong>{{ objet.numero }}</strong> en statut Brouillon ?</p>
+    <form method="post" action="{{ url_action }}">{% csrf_token %}
+      <button type="submit" class="btn btn-primary me-2"><i class="bi bi-copy me-1"></i>Dupliquer</button>
+      <a href="javascript:history.back()" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ devis.numero }}{% endblock %}
+{% block topbar_title %}Devis{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><i class="bi bi-file-text me-2 text-primary"></i>{{ devis.numero }}</h1>
+    <p class="page-subtitle">{{ devis.client.nom }} &middot; <span class="badge-status badge-{{ devis.statut }}">{{ devis.get_statut_display }}</span></p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if devis.statut not in 'converti,refuse,expire' %}<a href="{% url 'devis:edit' devis.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Modifier</a>{% endif %}
+    {% if devis.statut == 'brouillon' %}<form method="post" action="{% url 'devis:changer_statut' devis.pk 'envoye' %}" class="d-inline">{% csrf_token %}<button class="btn btn-primary">Marquer envoyé</button></form>{% endif %}
+    {% if devis.statut == 'envoye' %}<form method="post" action="{% url 'devis:changer_statut' devis.pk 'accepte' %}" class="d-inline">{% csrf_token %}<button class="btn btn-success">Accepter</button></form>{% endif %}
+    {% if devis.statut == 'accepte' %}<a href="{% url 'devis:convertir' devis.pk %}" class="btn btn-success"><i class="bi bi-receipt me-1"></i>Convertir</a>{% endif %}
+    <a href="{% url 'devis:imprimer' devis.pk %}" class="btn btn-outline-primary" target="_blank"><i class="bi bi-printer me-1"></i>PDF</a>
+    <button type="button" id="btnEmailDevis" class="btn btn-outline-info"><i class="bi bi-envelope me-1"></i>Email</button>
+    <a href="{% url 'devis:dupliquer' devis.pk %}" class="btn btn-outline-secondary"><i class="bi bi-copy me-1"></i>Dupliquer</a>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-8">
+    <div class="card">
+      <div class="card-header"><h6 class="card-title">Lignes</h6></div>
+      <div style="overflow-x:auto;"><table class="table-modern">
+        <thead><tr><th>Désignation</th><th class="text-end">Qté</th><th class="text-end">PU HT</th><th class="text-end">Remise</th><th class="text-end">TVA</th><th class="text-end">Total HT</th></tr></thead>
+        <tbody>{% for l in devis.lignes.all %}<tr>
+          <td style="font-weight:500;">{{ l.designation }}{% if l.description %}<div style="font-size:11px;color:var(--text-secondary);">{{ l.description }}</div>{% endif %}</td>
+          <td class="text-end">{{ l.quantite|floatformat:"-2" }}</td>
+          <td class="text-end">{{ l.prix_unitaire_ht|floatformat:2|intcomma }}</td>
+          <td class="text-end" style="color:var(--text-secondary);">{% if l.remise > 0 %}{{ l.remise }}%{% else %}&mdash;{% endif %}</td>
+          <td class="text-end" style="color:var(--text-secondary);">{{ l.tva }}%</td>
+          <td class="text-end" style="font-weight:700;color:var(--primary);">{{ l.total_ht|floatformat:2|intcomma }} DA</td>
+        </tr>{% empty %}<tr><td colspan="6" class="text-center py-3" style="color:var(--text-secondary);">Aucune ligne</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    {% if devis.facture %}<div class="card mt-3"><div class="card-body"><i class="bi bi-check-circle text-success me-2"></i>Converti en <a href="{% url 'ventes:detail' devis.facture.pk %}" style="font-weight:600;color:var(--primary);">{{ devis.facture.numero }}</a></div></div>{% endif %}
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card mb-3"><div class="card-header"><h6 class="card-title">Totaux</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Total HT</span><span>{{ devis.total_ht|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-3 pb-3 border-bottom"><span style="color:var(--text-secondary);">TVA</span><span>{{ devis.total_tva|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between"><strong style="font-size:15px;">Total TTC</strong><strong style="font-size:15px;color:var(--primary);">{{ devis.total_ttc|floatformat:2|intcomma }} DA</strong></div>
+    </div></div>
+    <div class="card"><div class="card-header"><h6 class="card-title">Informations</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Client</span><a href="{% url 'clients:detail' devis.client.pk %}" style="font-weight:500;text-decoration:none;">{{ devis.client.nom }}</a></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Date</span><span style="font-size:12.5px;">{{ devis.date_devis|date:"d/m/Y" }}</span></div>
+      {% if devis.date_validite %}<div class="d-flex justify-content-between"><span style="color:var(--text-secondary);">Validité</span><span style="font-size:12.5px;">{{ devis.date_validite|date:"d/m/Y" }}</span></div>{% endif %}
+    </div></div>
+  </div>
+</div>
+{% url 'devis:envoyer_email' devis.pk as email_action_url %}
+{% include 'components/modal_email.html' with doc=devis action_url=email_action_url %}
+{% endblock %}
+{% block extra_js %}
+<script>
+const btnEmailDevis=document.getElementById('btnEmailDevis');
+if(btnEmailDevis){btnEmailDevis.addEventListener('click',async function(){
+  document.getElementById('emailFormContent').style.display='none';document.getElementById('emailLoadingState').style.display='block';
+  new bootstrap.Modal(document.getElementById('modalEnvoyerEmail')).show();
+  try{const r=await fetch("{% url 'devis:envoyer_email' devis.pk %}",{headers:{'X-Requested-With':'XMLHttpRequest'}});const d=await r.json();
+    document.getElementById('emailDestinataire').value=d.email_client||'';document.getElementById('emailSujet').value=d.sujet||'';document.getElementById('emailCorps').value=d.corps||'';
+  }catch(e){}finally{document.getElementById('emailLoadingState').style.display='none';document.getElementById('emailFormContent').style.display='block';}
+});}
+</script>
+{% endblock %}

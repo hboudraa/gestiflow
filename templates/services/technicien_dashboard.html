@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Mon espace{% endblock %}
+{% block topbar_title %}Mon espace technicien{% endblock %}
+{% block content %}
+<div class="page-header"><h1 class="page-title"><i class="bi bi-person-badge me-2 text-warning"></i>Bonjour, {{ user.first_name|default:user.username }} !</h1></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon orange"><i class="bi bi-hourglass-split"></i></div><div><div class="kpi-value">{{ stats.nb_attente }}</div><div class="kpi-label">En attente</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon blue"><i class="bi bi-tools"></i></div><div><div class="kpi-value">{{ stats.nb_cours }}</div><div class="kpi-label">En cours</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-check-circle"></i></div><div><div class="kpi-value">{{ stats.nb_termine }}</div><div class="kpi-label">Terminés</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon purple"><i class="bi bi-clipboard-check"></i></div><div><div class="kpi-value">{{ stats.total }}</div><div class="kpi-label">Total assignés</div></div></div></div>
+</div>
+{% if en_cours %}
+<div class="card mb-4"><div class="card-header" style="background:rgba(59,130,246,.05);"><h6 class="card-title" style="color:var(--primary);"><i class="bi bi-tools me-2"></i>En cours ({{ en_cours|length }})</h6></div>
+  {% for s in en_cours %}
+  <div class="d-flex align-items-center justify-content-between px-4 py-3 {% if not forloop.last %}border-bottom{% endif %}">
+    <div><div style="font-weight:600;">{{ s.objet_service }}</div><div style="font-size:12px;color:var(--text-secondary);">{{ s.client.nom }} &middot; OT-{{ s.numero }}</div></div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'services:statut' s.pk %}">{% csrf_token %}<button name="action" value="terminer" class="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>Terminer</button></form>
+      <a href="{% url 'services:detail' s.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if en_attente %}
+<div class="card mb-4"><div class="card-header" style="background:rgba(245,158,11,.05);"><h6 class="card-title" style="color:#f59e0b;"><i class="bi bi-hourglass-split me-2"></i>En attente ({{ en_attente|length }})</h6></div>
+  {% for s in en_attente %}
+  <div class="d-flex align-items-center justify-content-between px-4 py-3 {% if not forloop.last %}border-bottom{% endif %}">
+    <div><div style="font-weight:600;">{{ s.objet_service }}</div><div style="font-size:12px;color:var(--text-secondary);">{{ s.client.nom }} &middot; OT-{{ s.numero }}</div></div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'services:statut' s.pk %}">{% csrf_token %}<button name="action" value="demarrer" class="btn btn-sm btn-primary"><i class="bi bi-play-fill me-1"></i>Démarrer</button></form>
+      <a href="{% url 'services:detail' s.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if not en_attente and not en_cours %}<div class="text-center py-5"><i class="bi bi-check-circle-fill d-block mb-3" style="font-size:3rem;color:#10b981;"></i><p style="font-size:16px;font-weight:600;">Aucun service en attente !</p></div>{% endif %}
+{% endblock %}

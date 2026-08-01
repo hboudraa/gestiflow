@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}OT-{{ service.numero }}{% endblock %}
+{% block topbar_title %}Ordre de travail{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-tools me-2 text-warning"></i>OT-{{ service.numero }}</h1>
+  <p class="page-subtitle">{{ service.client.nom }} &middot; {{ service.objet_service }}</p></div>
+  <div class="d-flex gap-2 flex-wrap">
+    <form method="post" action="{% url 'services:statut' service.pk %}" class="d-inline">{% csrf_token %}
+      {% if service.statut == 'en_attente' %}<button name="action" value="demarrer" class="btn btn-primary"><i class="bi bi-play-fill me-1"></i>Démarrer</button>{% endif %}
+      {% if service.statut == 'en_cours' %}<button name="action" value="terminer" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Terminer</button>{% endif %}
+      {% if service.statut == 'termine' %}<button name="action" value="livrer" class="btn btn-info text-white"><i class="bi bi-box-arrow-up-right me-1"></i>Livrer</button>{% endif %}
+    </form>
+    {% if service.statut in 'termine,livre' and not service.facture %}<a href="{% url 'services:generer_facture' service.pk %}" class="btn btn-success"><i class="bi bi-receipt-cutoff me-1"></i>Facture</a>{% endif %}
+    {% if service.facture %}<a href="{% url 'ventes:detail' service.facture.pk %}" class="btn btn-outline-success"><i class="bi bi-receipt me-1"></i>Voir facture</a>{% endif %}
+    <a href="{% url 'services:edit' service.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-8">
+    <div class="card mb-3"><div class="card-header"><h6 class="card-title"><i class="bi bi-file-text me-2"></i>Détail</h6></div>
+    <div class="card-body">
+      {% if service.description_probleme %}<div class="mb-3"><div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-secondary);margin-bottom:4px;">Problème décrit</div><p>{{ service.description_probleme }}</p></div>{% endif %}
+      {% if service.diagnostic %}<div class="mb-3"><div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-secondary);margin-bottom:4px;">Diagnostic</div><p>{{ service.diagnostic }}</p></div>{% endif %}
+      {% if service.travaux_effectues %}<div><div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-secondary);margin-bottom:4px;">Travaux effectués</div><p>{{ service.travaux_effectues }}</p></div>{% endif %}
+    </div></div>
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-wrench me-2 text-warning"></i>Pièces</h6>
+        {% if service.statut in 'en_attente,en_cours,suspendu' %}<button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalPiece"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>{% endif %}
+      </div>
+      <table class="table-modern"><thead><tr><th>Produit</th><th class="text-end">Qté</th><th class="text-end">PU HT</th><th class="text-end">Total HT</th></tr></thead>
+      <tbody>{% for p in service.pieces_utilisees.all %}<tr>
+        <td style="font-weight:500;">{{ p.produit.nom }}</td><td class="text-end">{{ p.quantite|floatformat:"-2" }}</td>
+        <td class="text-end">{{ p.prix_unitaire_ht|floatformat:2|intcomma }} DA</td>
+        <td class="text-end" style="font-weight:700;color:var(--primary);">{{ p.total_ht|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="4" class="text-center py-3" style="color:var(--text-secondary);font-size:13px;">Aucune pièce</td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-wrench-adjustable me-2 text-info"></i>Outils & Prestations</h6>
+        {% if service.statut in 'en_attente,en_cours,suspendu' %}<button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalOutil"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>{% endif %}
+      </div>
+      <table class="table-modern"><thead><tr><th>Désignation</th><th class="text-end">Qté</th><th>Unité</th><th class="text-end">Total HT</th><th>Facturé</th></tr></thead>
+      <tbody>{% for o in service.outils_utilises.all %}<tr>
+        <td style="font-weight:500;">{{ o.designation }}</td><td class="text-end">{{ o.quantite|floatformat:"-2" }}</td>
+        <td style="color:var(--text-secondary);">{{ o.unite }}</td>
+        <td class="text-end" style="font-weight:700;color:var(--primary);">{{ o.total_ht|floatformat:2|intcomma }} DA</td>
+        <td>{% if o.inclure_dans_facture %}<span class="badge-status badge-payee" style="font-size:10px;">Oui</span>{% else %}<span class="badge-status badge-annulee" style="font-size:10px;">Non</span>{% endif %}</td>
+      </tr>{% empty %}<tr><td colspan="5" class="text-center py-3" style="color:var(--text-secondary);font-size:13px;">Aucun outil</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card mb-3"><div class="card-header"><h6 class="card-title">Informations</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Statut</span><span class="badge-status badge-{{ service.statut }}">{{ service.get_statut_display }}</span></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Priorité</span><span class="badge-status badge-{{ service.priorite }}">{{ service.get_priorite_display }}</span></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Client</span><a href="{% url 'clients:detail' service.client.pk %}" style="font-weight:500;text-decoration:none;">{{ service.client.nom }}</a></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Technicien</span><span>{{ service.technicien.get_full_name|default:"&mdash;" }}</span></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Entrée</span><span style="font-size:12.5px;">{{ service.date_entree|date:"d/m/Y" }}</span></div>
+      <div class="d-flex justify-content-between"><span style="color:var(--text-secondary);">Fin prévue</span><span style="font-size:12.5px;">{{ service.date_fin_prevue|date:"d/m/Y"|default:"&mdash;" }}</span></div>
+    </div></div>
+    <div class="card"><div class="card-header"><h6 class="card-title">Coût total</h6></div><div class="card-body">
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Main d'oeuvre</span><span>{{ service.cout_main_oeuvre|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-secondary);">Pièces</span><span>{{ service.cout_pieces|floatformat:2|intcomma }} DA</span></div>
+      <div class="d-flex justify-content-between pt-2 border-top"><strong>Total TTC</strong><strong style="color:var(--primary);font-size:15px;">{{ service.total_ttc|floatformat:2|intcomma }} DA</strong></div>
+    </div></div>
+  </div>
+</div>
+{% if service.statut in 'en_attente,en_cours,suspendu' %}
+<div class="modal fade" id="modalPiece" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;">
+    <div class="modal-header" style="border-bottom:1px solid var(--border-color);"><h5 class="modal-title" style="font-size:15px;font-weight:600;"><i class="bi bi-wrench me-2 text-warning"></i>Ajouter une pièce</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="post" action="{% url 'services:ajouter_piece' service.pk %}">{% csrf_token %}
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Produit <span class="text-danger">*</span></label>
+          <select name="produit_id" class="form-select" required><option value="">Sélectionner...</option>
+          {% for p in produits_disponibles %}<option value="{{ p.pk }}">{{ p.nom }} ({{ p.quantite_stock|floatformat:"-2" }} {{ p.get_unite_display }}) &mdash; {{ p.prix_achat|floatformat:2 }} DA</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label">Quantité</label><input type="number" name="quantite" class="form-control" value="1" min="0.01" step="0.01"></div>
+      </div>
+      <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-warning text-white"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+<div class="modal fade" id="modalOutil" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;">
+    <div class="modal-header" style="border-bottom:1px solid var(--border-color);"><h5 class="modal-title" style="font-size:15px;font-weight:600;"><i class="bi bi-wrench-adjustable me-2 text-info"></i>Ajouter outil / prestation</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="post" action="{% url 'services:ajouter_outil' service.pk %}">{% csrf_token %}
+      <div class="modal-body"><div class="row g-3">
+        <div class="col-12"><label class="form-label">Désignation <span class="text-danger">*</span></label><input type="text" name="designation" class="form-control" required list="suggOutil"><datalist id="suggOutil"><option value="Diagnostic électronique"><option value="Frais de déplacement"><option value="Forfait intervention"></datalist></div>
+        <div class="col-12"><label class="form-label">Description</label><input type="text" name="description" class="form-control"></div>
+        <div class="col-6 col-md-3"><label class="form-label">Quantité</label><input type="number" name="quantite" class="form-control" value="1" min="0.01" step="0.01" id="oQte"></div>
+        <div class="col-6 col-md-3"><label class="form-label">Unité</label><input type="text" name="unite" class="form-control" value="unité"></div>
+        <div class="col-6 col-md-3"><label class="form-label">PU HT (DA)</label><input type="number" name="prix_unitaire_ht" class="form-control" value="0" min="0" step="0.01" id="oPrix"></div>
+        <div class="col-6 col-md-3"><label class="form-label">TVA %</label><input type="number" name="tva" class="form-control" value="19" step="0.01"></div>
+        <div class="col-12"><div style="background:var(--bg-body);border-radius:8px;padding:10px 14px;border:1px solid var(--border-color);"><div class="d-flex justify-content-between"><span style="font-size:13px;color:var(--text-secondary);">Total HT estimé</span><strong id="oTotal" style="color:var(--primary);">0,00 DA</strong></div></div></div>
+        <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="inclure_dans_facture" value="1" id="inclureOutil" checked><label class="form-check-label" for="inclureOutil" style="font-size:13px;"><i class="bi bi-receipt me-1 text-success"></i>Inclure dans la facture</label></div></div>
+      </div></div>
+      <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-info text-white"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+<script>
+(function(){const q=document.getElementById('oQte'),p=document.getElementById('oPrix'),t=document.getElementById('oTotal');
+function upd(){if(q&&p&&t){t.textContent=(parseFloat(q.value||0)*parseFloat(p.value||0)).toLocaleString('fr-DZ',{minimumFractionDigits:2})+' DA';}}
+if(q)q.addEventListener('input',upd);if(p)p.addEventListener('input',upd);})();
+</script>
+{% endif %}
+{% endblock %}

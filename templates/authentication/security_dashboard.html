@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Sécurité{% endblock %}
+{% block topbar_title %}Tableau de bord sécurité{% endblock %}
+{% block content %}
+<div class="page-header"><h1 class="page-title"><i class="bi bi-shield-check me-2 text-success"></i>Sécurité — 7 derniers jours</h1></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-shield-check"></i></div><div><div class="kpi-value" style="color:#10b981;">{{ connexions_ok }}</div><div class="kpi-label">Connexions réussies</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon red"><i class="bi bi-shield-x"></i></div><div><div class="kpi-value" style="color:{% if connexions_echec > 10 %}#ef4444{% else %}var(--text-primary){% endif %};">{{ connexions_echec }}</div><div class="kpi-label">Tentatives échouées</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon orange"><i class="bi bi-lock"></i></div><div><div class="kpi-value">{{ acces_refuses }}</div><div class="kpi-label">Accès refusés</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="kpi-card"><div class="kpi-icon red"><i class="bi bi-ban"></i></div><div><div class="kpi-value" style="color:#ef4444;">{{ ips_bloquees|length }}</div><div class="kpi-label">IPs bloquées</div></div></div></div>
+</div>
+{% if ips_bloquees %}
+<div class="card mb-3"><div class="card-header"><h6 class="card-title text-danger"><i class="bi bi-ban me-2"></i>IPs bloquées</h6></div>
+  <table class="table-modern"><thead><tr><th>IP</th><th>Identifiant</th><th class="text-end">Tentatives</th><th>Bloquée jusqu'à</th></tr></thead>
+  <tbody>{% for ip in ips_bloquees %}<tr>
+    <td><code style="color:#ef4444;">{{ ip.adresse_ip }}</code></td>
+    <td>{{ ip.username|default:"—" }}</td>
+    <td class="text-end" style="font-weight:700;color:#ef4444;">{{ ip.nb_tentatives }}</td>
+    <td style="font-size:12.5px;">{{ ip.bloque_jusqu|date:"d/m H:i" }}</td>
+  </tr>{% endfor %}</tbody></table>
+</div>
+{% endif %}
+<div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-journal-text me-2"></i>Événements récents</h6></div>
+  <div style="overflow-x:auto;"><table class="table-modern">
+    <thead><tr><th>Date/Heure</th><th>Événement</th><th>Utilisateur</th><th>IP</th><th>Détails</th></tr></thead>
+    <tbody>{% for e in evenements_recents %}<tr>
+      <td style="font-family:monospace;font-size:11px;color:var(--text-secondary);white-space:nowrap;">{{ e.cree_le|date:"d/m H:i:s" }}</td>
+      <td><span style="font-size:11px;font-family:monospace;font-weight:600;padding:2px 6px;border-radius:4px;background:{% if 'FAIL' in e.action or 'DENIED' in e.action %}rgba(239,68,68,.1){% elif 'OK' in e.action %}rgba(16,185,129,.1){% else %}rgba(59,130,246,.1){% endif %};color:{% if 'FAIL' in e.action or 'DENIED' in e.action %}#ef4444{% elif 'OK' in e.action %}#10b981{% else %}var(--primary){% endif %};">{{ e.action }}</span></td>
+      <td style="font-size:12px;">{{ e.utilisateur.username|default:"—" }}</td>
+      <td style="font-family:monospace;font-size:11px;color:var(--text-secondary);">{{ e.adresse_ip|default:"—" }}</td>
+      <td style="font-size:11px;color:var(--text-secondary);">{{ e.details|truncatechars:60 }}</td>
+    </tr>{% empty %}<tr><td colspan="5" class="text-center py-4" style="color:var(--text-secondary);">Aucun événement</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

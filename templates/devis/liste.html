@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Devis{% endblock %}
+{% block topbar_title %}Devis{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-file-text me-2 text-primary"></i>Devis</h1></div>
+  <a href="{% url 'devis:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouveau</a>
+</div>
+<form method="get" class="d-flex gap-2 mb-4 flex-wrap">
+  <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="N° devis, client..." style="max-width:280px;">
+  <select name="statut" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
+    <option value="">Tous statuts</option>
+    {% for val, lbl in statuts %}<option value="{{ val }}" {% if statut == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+</form>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Validité</th><th class="text-end">Total TTC</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+    {% for d in devis_list %}<tr>
+      <td><a href="{% url 'devis:detail' d.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ d.numero }}</a></td>
+      <td style="font-weight:500;">{{ d.client.nom }}</td>
+      <td style="color:var(--text-secondary);font-size:12.5px;">{{ d.date_devis|date:"d/m/Y" }}</td>
+      <td style="color:var(--text-secondary);font-size:12.5px;">{{ d.date_validite|date:"d/m/Y"|default:"&mdash;" }}</td>
+      <td class="text-end" style="font-weight:600;">{{ d.total_ttc|floatformat:2|intcomma }} DA</td>
+      <td><span class="badge-status badge-{{ d.statut }}" style="font-size:10px;">{{ d.get_statut_display }}</span></td>
+      <td><a href="{% url 'devis:detail' d.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-eye"></i></a></td>
+    </tr>{% empty %}<tr><td colspan="7" class="text-center py-5" style="color:var(--text-secondary);">Aucun devis</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

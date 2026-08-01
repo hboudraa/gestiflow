@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Clients inactifs{% endblock %}
+{% block topbar_title %}Clients inactifs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-person-x me-2 text-danger"></i>Clients inactifs</h1>
+  <p class="page-subtitle">{{ total }} client{{ total|pluralize }} sans achat depuis {{ jours }} jours</p></div>
+</div>
+<div class="card mb-4"><div class="card-body py-3">
+  <form method="get" class="d-flex gap-2 align-items-end">
+    <div><label class="form-label">Inactif depuis</label>
+    <div class="input-group"><input type="number" name="jours" class="form-control" value="{{ jours }}" min="1" max="365" style="width:100px;"><span class="input-group-text">jours</span></div></div>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Filtrer</button>
+  </form>
+</div></div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Client</th><th>Type</th><th>Téléphone</th><th>Nb factures</th><th>Dernière facture</th><th>Actions</th></tr></thead>
+  <tbody>{% for c in clients %}<tr>
+    <td><a href="{% url 'clients:detail' c.pk %}" style="font-weight:500;color:var(--text-primary);text-decoration:none;">{{ c.nom }}</a><div style="font-size:11px;color:var(--text-secondary);">{{ c.code }}</div></td>
+    <td><span class="badge bg-secondary-subtle text-secondary" style="font-size:11px;">{{ c.get_type_client_display }}</span></td>
+    <td style="color:var(--text-secondary);">{{ c.telephone|default:"—" }}</td>
+    <td class="text-center" style="font-weight:600;">{{ c.nb_factures }}</td>
+    <td style="font-size:12.5px;color:var(--text-secondary);">{% if c.derniere_facture %}{{ c.derniere_facture|date:"d/m/Y" }}{% else %}<span style="color:#ef4444;">Jamais</span>{% endif %}</td>
+    <td>
+      <a href="{% url 'devis:create' %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-file-text me-1"></i>Devis</a>
+      <a href="{% url 'ventes:create' %}" class="btn btn-sm btn-outline-success"><i class="bi bi-receipt me-1"></i>Facture</a>
+    </td>
+  </tr>{% empty %}
+  <tr><td colspan="6" class="text-center py-5" style="color:var(--text-secondary);"><i class="bi bi-emoji-smile d-block mb-2" style="font-size:2rem;color:#10b981;"></i>Tous vos clients sont actifs !</td></tr>
+  {% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

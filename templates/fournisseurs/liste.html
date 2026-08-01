@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Fournisseurs{% endblock %}
+{% block topbar_title %}Fournisseurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-truck me-2 text-secondary"></i>Fournisseurs</h1>
+  <a href="{% url 'fournisseurs:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouveau</a>
+</div>
+<form method="get" class="d-flex gap-2 mb-4">
+  <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher..." style="max-width:300px;">
+  <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+</form>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Code</th><th>Nom</th><th>Téléphone</th><th>Email</th><th>Actions</th></tr></thead>
+  <tbody>{% for f in fournisseurs %}<tr>
+    <td><code style="font-size:12px;color:var(--primary);">{{ f.code }}</code></td>
+    <td><a href="{% url 'fournisseurs:detail' f.pk %}" style="font-weight:500;color:var(--text-primary);text-decoration:none;">{{ f.nom }}</a></td>
+    <td style="color:var(--text-secondary);">{{ f.telephone|default:"—" }}</td>
+    <td style="color:var(--text-secondary);">{{ f.email|default:"—" }}</td>
+    <td>
+      <a href="{% url 'fournisseurs:edit' f.pk %}" class="btn btn-sm btn-outline-secondary btn-icon me-1"><i class="bi bi-pencil"></i></a>
+      <a href="{% url 'fournisseurs:detail' f.pk %}" class="btn btn-sm btn-outline-primary btn-icon"><i class="bi bi-eye"></i></a>
+    </td>
+  </tr>{% empty %}<tr><td colspan="5" class="text-center py-4" style="color:var(--text-secondary);">Aucun fournisseur</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Utilisateurs{% endblock %}
+{% block topbar_title %}Gestion des utilisateurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-people me-2"></i>Utilisateurs</h1>
+  <a href="{% url 'auth:utilisateur_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvel utilisateur</a>
+</div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Nom</th><th>Username</th><th>Rôle</th><th>Email</th><th>Actif</th><th></th></tr></thead>
+  <tbody>{% for u in utilisateurs %}<tr>
+    <td style="font-weight:500;">{{ u.get_full_name|default:u.username }}</td>
+    <td><code style="font-size:12px;">{{ u.username }}</code></td>
+    <td><span class="badge bg-secondary-subtle text-secondary" style="font-size:11px;">{{ u.get_role_display }}</span></td>
+    <td style="color:var(--text-secondary);">{{ u.email|default:"—" }}</td>
+    <td>{% if u.actif %}<span class="badge-status badge-payee">Actif</span>{% else %}<span class="badge-status badge-annulee">Inactif</span>{% endif %}</td>
+    <td><a href="{% url 'auth:utilisateur_edit' u.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-pencil"></i></a></td>
+  </tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

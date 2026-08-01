@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Factures{% endblock %}
+{% block topbar_title %}Factures{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-receipt me-2 text-success"></i>Factures</h1></div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'ventes:paiements_liste' %}" class="btn btn-outline-success"><i class="bi bi-cash-stack me-1"></i>Paiements</a>
+    <a href="{% url 'ventes:export_csv' %}" class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i>CSV</a>
+    <a href="{% url 'ventes:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvelle</a>
+  </div>
+</div>
+<form method="get" class="d-flex gap-2 mb-4 flex-wrap">
+  <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="N° facture, client..." style="max-width:280px;">
+  <select name="statut" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
+    <option value="">Tous statuts</option>
+    {% for val, lbl in statuts %}<option value="{{ val }}" {% if statut == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  {% if q or statut %}<a href="{% url 'ventes:liste' %}" class="btn btn-outline-secondary">&#10005;</a>{% endif %}
+</form>
+<div class="card">
+  <div style="overflow-x:auto;"><table class="table-modern">
+    <thead><tr><th>N°</th><th>Client</th><th>Date</th><th class="text-end">Total TTC</th><th class="text-end">Payé</th><th>Statut</th><th></th></tr></thead>
+    <tbody>
+      {% for f in factures %}
+      <tr>
+        <td><a href="{% url 'ventes:detail' f.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ f.numero }}</a></td>
+        <td style="font-weight:500;">{{ f.client.nom }}</td>
+        <td style="color:var(--text-secondary);font-size:12.5px;">{{ f.date_facture|date:"d/m/Y" }}</td>
+        <td class="text-end" style="font-weight:600;">{{ f.total_ttc|floatformat:2|intcomma }} DA</td>
+        <td class="text-end" style="color:#10b981;">{{ f.montant_paye|floatformat:2|intcomma }} DA</td>
+        <td><span class="badge-status badge-{{ f.statut }}" style="font-size:10px;">{{ f.get_statut_display }}</span></td>
+        <td><a href="{% url 'ventes:detail' f.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-eye"></i></a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center py-5" style="color:var(--text-secondary);">Aucune facture</td></tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+  {% if factures.has_other_pages %}
+  <div class="card-body border-top"><nav><ul class="pagination pagination-sm mb-0 justify-content-end">
+    {% if factures.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ factures.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if statut %}&statut={{ statut }}{% endif %}">&#8249;</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ factures.number }}/{{ factures.paginator.num_pages }}</span></li>
+    {% if factures.has_next %}<li class="page-item"><a class="page-link" href="?page={{ factures.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if statut %}&statut={{ statut }}{% endif %}">&#8250;</a></li>{% endif %}
+  </ul></nav></div>
+  {% endif %}
+</div>
+{% endblock %}

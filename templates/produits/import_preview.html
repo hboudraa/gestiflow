@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Prévisualisation import{% endblock %}
+{% block topbar_title %}Prévisualisation import{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Prévisualisation</h1>
+  <p class="page-subtitle"><span style="color:#10b981;">{{ nb_creation }} création{{ nb_creation|pluralize }}</span> &middot; <span style="color:#3b82f6;">{{ nb_update }} mise{{ nb_update|pluralize }} à jour</span></p></div>
+  <a href="{% url 'produits:import_excel' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Changer</a>
+</div>
+<div class="card mb-4"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Ligne</th><th>Référence</th><th>Désignation</th><th class="text-end">P. Achat</th><th class="text-end">P. Vente</th><th class="text-end">Stock</th><th>Action</th></tr></thead>
+  <tbody>{% for l in lignes %}<tr>
+    <td style="font-size:12px;color:var(--text-secondary);">{{ l.row_num }}</td>
+    <td><code style="font-size:12px;color:var(--primary);">{{ l.reference }}</code></td>
+    <td style="font-weight:500;">{{ l.designation }}</td>
+    <td class="text-end" style="font-size:12.5px;">{{ l.prix_achat }} DA</td>
+    <td class="text-end" style="font-size:12.5px;">{{ l.prix_vente }} DA</td>
+    <td class="text-end" style="font-size:12.5px;">{{ l.stock }}</td>
+    <td><span class="badge-status {% if l.action == 'creation' %}badge-payee{% else %}badge-en_attente{% endif %}" style="font-size:10px;">{{ l.action }}</span></td>
+  </tr>{% endfor %}</tbody>
+</table></div></div>
+{% if lignes %}
+<form method="post" action="{% url 'produits:import_preview' %}">{% csrf_token %}
+  <input type="hidden" name="confirmed" value="1">
+  <input type="hidden" name="lignes_json" value="{{ lignes_json }}">
+  <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-check-circle me-2"></i>Confirmer ({{ nb_creation }} créations + {{ nb_update }} mises à jour)</button>
+</form>
+{% endif %}
+{% endblock %}

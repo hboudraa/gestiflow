@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ client.nom }}{% endblock %}
+{% block topbar_title %}Fiche client{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><i class="bi bi-person me-2 text-primary"></i>{{ client.nom }}</h1>
+    <p class="page-subtitle">{{ client.code }} · {{ client.get_type_client_display }}</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'clients:edit' client.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    <a href="{% url 'clients:rapport' client.pk %}" class="btn btn-outline-info"><i class="bi bi-file-person me-1"></i>Rapport</a>
+    <a href="{% url 'devis:create' %}" class="btn btn-outline-primary"><i class="bi bi-file-text me-1"></i>Devis</a>
+    <a href="{% url 'ventes:create' %}" class="btn btn-primary"><i class="bi bi-receipt me-1"></i>Facture</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-info-circle me-2"></i>Informations</h6></div>
+      <div class="card-body">
+        {% if client.telephone %}<p><i class="bi bi-telephone me-2 text-primary"></i>{{ client.telephone }}</p>{% endif %}
+        {% if client.email %}<p><i class="bi bi-envelope me-2 text-primary"></i>{{ client.email }}</p>{% endif %}
+        {% if client.adresse_complete %}<p><i class="bi bi-geo-alt me-2 text-primary"></i>{{ client.adresse_complete }}</p>{% endif %}
+        {% if client.nif %}<p><i class="bi bi-card-text me-2 text-primary"></i>NIF : {{ client.nif }}</p>{% endif %}
+        {% if client.remise_defaut > 0 %}<p><i class="bi bi-tag me-2 text-success"></i>Remise : <strong>{{ client.remise_defaut }}%</strong></p>{% endif %}
+        {% if client.notes %}<div class="mt-2 p-3" style="background:var(--bg-body);border-radius:8px;font-size:13px;">{{ client.notes }}</div>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header"><h6 class="card-title"><i class="bi bi-cash me-2"></i>Situation financière</h6></div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-6"><div style="background:rgba(59,130,246,.06);border-radius:10px;padding:12px;"><div style="font-size:11px;color:var(--text-secondary);">Total facturé</div><div style="font-size:18px;font-weight:700;color:var(--primary);">{{ stats.total_ttc|default:0|floatformat:0|intcomma }} DA</div></div></div>
+          <div class="col-6"><div style="background:rgba(16,185,129,.06);border-radius:10px;padding:12px;"><div style="font-size:11px;color:var(--text-secondary);">Encaissé</div><div style="font-size:18px;font-weight:700;color:#10b981;">{{ stats.total_paye|default:0|floatformat:0|intcomma }} DA</div></div></div>
+          <div class="col-6"><div style="background:rgba(239,68,68,.06);border-radius:10px;padding:12px;"><div style="font-size:11px;color:var(--text-secondary);">Impayé</div><div style="font-size:18px;font-weight:700;color:#ef4444;">{{ stats.total_restant|default:0|floatformat:0|intcomma }} DA</div></div></div>
+          <div class="col-6"><div style="background:rgba(100,116,139,.06);border-radius:10px;padding:12px;"><div style="font-size:11px;color:var(--text-secondary);">Nb factures</div><div style="font-size:18px;font-weight:700;">{{ stats.nb|default:0 }}</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if client.factures.exists %}
+<div class="card mt-3">
+  <div class="card-header"><h6 class="card-title"><i class="bi bi-receipt me-2 text-success"></i>Dernières factures</h6><a href="{% url 'clients:rapport' client.pk %}" class="btn btn-sm btn-outline-secondary">Rapport complet</a></div>
+  <div style="overflow-x:auto;"><table class="table-modern">
+    <thead><tr><th>N°</th><th>Date</th><th>Total TTC</th><th>Payé</th><th>Statut</th><th></th></tr></thead>
+    <tbody>{% for f in client.factures.all|slice:":10" %}<tr>
+      <td><a href="{% url 'ventes:detail' f.pk %}" style="font-family:monospace;font-size:12px;color:var(--primary);text-decoration:none;">{{ f.numero }}</a></td>
+      <td style="color:var(--text-secondary);font-size:12.5px;">{{ f.date_facture|date:"d/m/Y" }}</td>
+      <td style="font-weight:600;">{{ f.total_ttc|floatformat:2|intcomma }} DA</td>
+      <td style="color:#10b981;">{{ f.montant_paye|floatformat:2|intcomma }} DA</td>
+      <td><span class="badge-status badge-{{ f.statut }}" style="font-size:10px;">{{ f.get_statut_display }}</span></td>
+      <td><a href="{% url 'ventes:detail' f.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-eye"></i></a></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endif %}
+{% endblock %}

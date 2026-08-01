@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Performance vendeurs{% endblock %}
+{% block topbar_title %}Performance vendeurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-people me-2 text-primary"></i>Performance vendeurs</h1>
+  <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+<div class="card mb-4 no-print"><div class="card-body py-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto"><label class="form-label">Du</label><input type="date" name="debut" class="form-control" value="{{ debut }}"></div>
+    <div class="col-auto"><label class="form-label">Au</label><input type="date" name="fin" class="form-control" value="{{ fin }}"></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Actualiser</button></div>
+  </form>
+</div></div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Vendeur</th><th class="text-end">Nb factures</th><th class="text-end">CA TTC</th><th class="text-end">Encaissé</th><th class="text-end">Restant</th><th class="text-end">% du CA</th></tr></thead>
+  <tbody>{% for s in stats %}<tr>
+    <td style="font-weight:500;">{{ s.nom_complet }}</td>
+    <td class="text-end">{{ s.nb_factures }}</td>
+    <td class="text-end" style="font-weight:700;color:var(--primary);">{{ s.total_ttc|floatformat:2|intcomma }} DA</td>
+    <td class="text-end" style="color:#10b981;">{{ s.total_paye|floatformat:2|intcomma }} DA</td>
+    <td class="text-end" style="color:{% if s.total_restant > 0 %}#ef4444{% else %}#10b981{% endif %};">{{ s.total_restant|floatformat:2|intcomma }} DA</td>
+    <td class="text-end" style="font-weight:600;">{{ s.pct_ca|floatformat:1 }}%</td>
+  </tr>{% empty %}<tr><td colspan="6" class="text-center py-5" style="color:var(--text-secondary);">Aucune donnée sur cette période</td></tr>{% endfor %}</tbody>
+  {% if grand_total %}<tfoot><tr style="background:var(--bg-body);"><td style="font-weight:700;padding:12px 14px;">Total</td><td></td><td class="text-end" style="font-weight:700;color:var(--primary);padding:12px 14px;">{{ grand_total|floatformat:2|intcomma }} DA</td><td colspan="3"></td></tr></tfoot>{% endif %}
+</table></div></div>
+{% endblock %}

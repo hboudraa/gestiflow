@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ fournisseur.nom }}{% endblock %}
+{% block topbar_title %}Fiche fournisseur{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-truck me-2 text-secondary"></i>{{ fournisseur.nom }}</h1><p class="page-subtitle">{{ fournisseur.code }}</p></div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'fournisseurs:edit' fournisseur.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    <a href="{% url 'achats:create' %}" class="btn btn-primary"><i class="bi bi-cart3 me-1"></i>Nouvel achat</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-6"><div class="card"><div class="card-header"><h6 class="card-title">Informations</h6></div><div class="card-body">
+    {% if fournisseur.telephone %}<p><i class="bi bi-telephone me-2 text-primary"></i>{{ fournisseur.telephone }}</p>{% endif %}
+    {% if fournisseur.email %}<p><i class="bi bi-envelope me-2 text-primary"></i>{{ fournisseur.email }}</p>{% endif %}
+    {% if fournisseur.contact_nom %}<p><i class="bi bi-person me-2 text-primary"></i>{{ fournisseur.contact_nom }}</p>{% endif %}
+    {% if fournisseur.nif %}<p>NIF : {{ fournisseur.nif }}</p>{% endif %}
+    <p>Délai paiement : <strong>{{ fournisseur.delai_paiement }} jours</strong></p>
+    {% if fournisseur.adresse_complete %}<p><i class="bi bi-geo-alt me-2 text-primary"></i>{{ fournisseur.adresse_complete }}</p>{% endif %}
+  </div></div></div>
+  <div class="col-12 col-md-6"><div class="card"><div class="card-header"><h6 class="card-title">Achats</h6></div><div class="card-body">
+    <p>Nombre d'achats : <strong>{{ fournisseur.achats.count }}</strong></p>
+    <a href="{% url 'achats:liste' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart3 me-1"></i>Voir achats</a>
+  </div></div></div>
+</div>
+{% endblock %}

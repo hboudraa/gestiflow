@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Générer facture service{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-12 col-md-8">
+  <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-receipt-cutoff me-2 text-success"></i>Générer facture &mdash; OT-{{ service.numero }}</h6></div>
+  <div class="card-body">
+    <table class="table-modern mb-4"><thead><tr><th>Désignation</th><th>Type</th><th class="text-end">Montant HT</th></tr></thead>
+    <tbody>
+      {% if service.cout_main_oeuvre %}<tr><td>Main d'oeuvre &mdash; {{ service.objet_service }}</td><td><span class="badge bg-primary-subtle text-primary" style="font-size:11px;">MO</span></td><td class="text-end">{{ service.cout_main_oeuvre|floatformat:2|intcomma }} DA</td></tr>{% endif %}
+      {% for p in service.pieces_utilisees.all %}<tr><td>{{ p.produit.nom }} &times; {{ p.quantite }}</td><td><span class="badge bg-warning-subtle text-warning" style="font-size:11px;">Pièce</span></td><td class="text-end">{{ p.total_ht|floatformat:2|intcomma }} DA</td></tr>{% endfor %}
+      {% for o in outils_facturables %}<tr><td>{{ o.designation }} &times; {{ o.quantite }} {{ o.unite }}</td><td><span class="badge bg-info-subtle text-info" style="font-size:11px;">Outil</span></td><td class="text-end">{{ o.total_ht|floatformat:2|intcomma }} DA</td></tr>{% endfor %}
+    </tbody>
+    <tfoot><tr style="background:var(--bg-body);"><td colspan="2" style="font-weight:700;padding:12px 14px;">Total TTC</td><td class="text-end" style="font-weight:700;color:var(--primary);padding:12px 14px;">{{ service.total_ttc|floatformat:2|intcomma }} DA</td></tr></tfoot></table>
+    <form method="post">{% csrf_token %}
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-check-lg me-1"></i>Créer la facture</button>
+      <a href="{% url 'services:detail' service.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

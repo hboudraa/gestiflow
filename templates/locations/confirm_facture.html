@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Générer facture location{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-12 col-md-7">
+  <div class="card"><div class="card-header"><h6 class="card-title"><i class="bi bi-receipt-cutoff me-2 text-success"></i>Générer facture &mdash; {{ location.numero }}</h6></div>
+  <div class="card-body">
+    <p>Facture pour <strong>{{ location.client.nom }}</strong> :</p>
+    <table class="table-modern mb-4"><thead><tr><th>Article</th><th class="text-end">Sous-total HT</th></tr></thead>
+    <tbody>{% for a in location.articles.all %}<tr><td>{{ a.produit.nom }} &times; {{ a.nombre_jours }} j.</td><td class="text-end">{{ a.sous_total_ht|floatformat:2|intcomma }} DA</td></tr>{% endfor %}
+    {% if location.penalite_retard > 0 %}<tr><td style="color:#ef4444;">Pénalité retard</td><td class="text-end" style="color:#ef4444;">{{ location.penalite_retard|floatformat:2|intcomma }} DA</td></tr>{% endif %}</tbody>
+    <tfoot><tr style="background:var(--bg-body);"><td style="font-weight:700;padding:12px 14px;">Total TTC</td><td class="text-end" style="font-weight:700;color:var(--primary);padding:12px 14px;">{{ location.total_ttc|floatformat:2|intcomma }} DA</td></tr></tfoot></table>
+    <form method="post">{% csrf_token %}
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-check-lg me-1"></i>Créer la facture</button>
+      <a href="{% url 'locations:detail' location.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

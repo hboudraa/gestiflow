@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Catégories{% endblock %}
+{% block topbar_title %}Catégories{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-folder me-2 text-primary"></i>Catégories</h1>
+  <a href="{% url 'produits:categorie_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvelle</a>
+</div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Nom</th><th>Icône</th><th>Couleur</th><th></th></tr></thead>
+  <tbody>{% for cat in categories %}<tr>
+    <td style="font-weight:500;"><i class="bi {{ cat.icone }} me-2" style="color:{{ cat.couleur }};"></i>{{ cat.nom }}</td>
+    <td><code style="font-size:12px;color:var(--text-secondary);">{{ cat.icone }}</code></td>
+    <td><span style="display:inline-block;width:18px;height:18px;border-radius:4px;background:{{ cat.couleur }};vertical-align:middle;margin-right:6px;"></span>{{ cat.couleur }}</td>
+    <td><a href="{% url 'produits:categorie_edit' cat.pk %}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-pencil"></i></a></td>
+  </tr>{% empty %}<tr><td colspan="4" class="text-center py-4" style="color:var(--text-secondary);">Aucune catégorie</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Tarif{% endblock %}
+{% block topbar_title %}Liste des tarifs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-tags me-2 text-primary"></i>Liste des tarifs</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'produits:tarif_pdf' %}{% if categorie_id %}?categorie={{ categorie_id }}{% endif %}" class="btn btn-primary" target="_blank"><i class="bi bi-file-pdf me-1"></i>PDF</a>
+    <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+  </div>
+</div>
+<div class="card mb-4 no-print"><div class="card-body py-3">
+  <form method="get" class="d-flex gap-2">
+    <select name="categorie" class="form-select" style="max-width:200px;" onchange="this.form.submit()">
+      <option value="">Toutes catégories</option>
+      {% for cat in categories %}<option value="{{ cat.pk }}" {% if categorie_id == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.nom }}</option>{% endfor %}
+    </select>
+    {% if categorie_id %}<a href="{% url 'produits:tarif_preview' %}" class="btn btn-outline-secondary">Tout</a>{% endif %}
+  </form>
+</div></div>
+{% regroup produits by categorie as by_cat %}
+{% for cg in by_cat %}
+<div class="card mb-3">
+  <div class="card-header" style="background:rgba(59,130,246,.05);"><h6 class="card-title" style="color:var(--primary);"><i class="bi bi-folder me-2"></i>{{ cg.grouper.nom|default:"Autres" }}</h6></div>
+  <div style="overflow-x:auto;"><table class="table-modern">
+    <thead><tr><th>Référence</th><th>Désignation</th><th>Unité</th><th class="text-end">Prix HT</th><th class="text-end">TVA</th><th class="text-end">Prix TTC</th></tr></thead>
+    <tbody>{% for p in cg.list %}<tr>
+      <td><code style="font-size:12px;color:var(--primary);">{{ p.reference }}</code></td>
+      <td style="font-weight:500;">{{ p.nom }}</td>
+      <td style="color:var(--text-secondary);">{{ p.get_unite_display }}</td>
+      <td class="text-end">{{ p.prix_vente|floatformat:2|intcomma }}</td>
+      <td class="text-end" style="color:var(--text-secondary);">{{ p.tva }}%</td>
+      <td class="text-end" style="font-weight:700;color:var(--primary);">{{ p.prix_vente_ttc|floatformat:2|intcomma }}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endfor %}
+{% endblock %}

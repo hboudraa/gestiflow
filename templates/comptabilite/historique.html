@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Comptabilité{% endblock %}
+{% block topbar_title %}Historique des transactions{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-cash-stack me-2 text-success"></i>Comptabilité</h1>
+  <a href="{% url 'comptabilite:ajouter' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvelle transaction</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-arrow-up-circle"></i></div><div><div class="kpi-value">{{ totaux.recettes|default:0|floatformat:0|intcomma }}<small style="font-size:12px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Recettes</div></div></div></div>
+  <div class="col-6"><div class="kpi-card"><div class="kpi-icon red"><i class="bi bi-arrow-down-circle"></i></div><div><div class="kpi-value">{{ totaux.depenses|default:0|floatformat:0|intcomma }}<small style="font-size:12px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Dépenses</div></div></div></div>
+</div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Date</th><th>Libellé</th><th>Catégorie</th><th>Mode</th><th class="text-end">Montant</th><th>Type</th></tr></thead>
+  <tbody>{% for t in transactions %}<tr>
+    <td style="font-size:12.5px;color:var(--text-secondary);">{{ t.date_transaction|date:"d/m/Y" }}</td>
+    <td style="font-weight:500;">{{ t.libelle }}</td>
+    <td style="color:var(--text-secondary);font-size:12.5px;">{{ t.categorie.nom|default:"&mdash;" }}</td>
+    <td style="color:var(--text-secondary);font-size:12.5px;">{{ t.get_mode_reglement_display }}</td>
+    <td class="text-end" style="font-weight:700;color:{% if t.type_transaction == 'recette' %}#10b981{% else %}#ef4444{% endif %};">
+      {% if t.type_transaction == 'depense' %}&mdash;{% endif %}{{ t.montant|floatformat:2|intcomma }} DA
+    </td>
+    <td><span class="badge-status {% if t.type_transaction == 'recette' %}badge-payee{% else %}badge-annulee{% endif %}" style="font-size:11px;">{{ t.get_type_transaction_display }}</span></td>
+  </tr>{% empty %}<tr><td colspan="6" class="text-center py-4" style="color:var(--text-secondary);">Aucune transaction</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

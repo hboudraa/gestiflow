@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ titre }}{% endblock %}
+{% block topbar_title %}{{ titre }}{% endblock %}
+{% block content %}
+<div class="page-header"><h1 class="page-title">{{ titre }}</h1></div>
+<div class="row justify-content-center"><div class="col-12 col-lg-9">
+  <div class="card"><div class="card-header"><h6 class="card-title">{{ titre }}</h6></div>
+  <div class="card-body">
+    <form method="post" id="mainForm">{% csrf_token %}
+      <div class="row g-3">{% for field in form %}<div class="col-12 col-md-6"><label class="form-label">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="text-danger" style="font-size:12px;">{{ field.errors }}</div>{% endif %}</div>{% endfor %}</div>
+      <div class="card mt-4"><div class="card-header"><h6 class="card-title">Lignes</h6>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addLigne()"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+      </div><div class="card-body" id="lignesContainer"><p class="text-secondary text-center py-3">Aucune ligne</p></div></div>
+      <input type="hidden" name="lignes_json" id="lignesJson" value="[]">
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Créer l'achat</button>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">Annuler</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}
+{% block extra_js %}
+<script>
+let lignes=[];
+function fmt(n){return parseFloat(n||0).toLocaleString('fr-DZ',{minimumFractionDigits:2})+' DA';}
+function renderLignes(){
+  const c=document.getElementById('lignesContainer');
+  if(!lignes.length){c.innerHTML='<p class="text-secondary text-center py-3">Aucune ligne</p>';document.getElementById('lignesJson').value='[]';return;}
+  c.innerHTML=lignes.map((l,i)=>`<div class="mb-2 p-3" style="background:var(--bg-body);border-radius:8px;border:1px solid var(--border-color);"><div class="row g-2 align-items-end">
+    <div class="col-12 col-md-4"><label class="form-label" style="font-size:11px;">ID Produit</label><input type="number" class="form-control form-control-sm" placeholder="ID produit" value="${l.produit_id||''}" onchange="lignes[${i}].produit_id=parseInt(this.value)||null;save()"></div>
+    <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">Quantité</label><input type="number" class="form-control form-control-sm" value="${l.quantite||1}" min="0.01" step="0.01" onchange="lignes[${i}].quantite=parseFloat(this.value)||1;save()"></div>
+    <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">PU HT</label><input type="number" class="form-control form-control-sm" value="${l.prix_unitaire_ht||0}" min="0" step="0.01" onchange="lignes[${i}].prix_unitaire_ht=parseFloat(this.value)||0;save()"></div>
+    <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">TVA %</label><input type="number" class="form-control form-control-sm" value="${l.tva||19}" step="0.01" onchange="lignes[${i}].tva=parseFloat(this.value)||19;save()"></div>
+    <div class="col-6 col-md-1 text-end"><label class="form-label" style="font-size:11px;">Total</label><div style="font-size:13px;font-weight:700;color:var(--primary);">${fmt((l.quantite||1)*(l.prix_unitaire_ht||0))}</div></div>
+    <div class="col-12 col-md-1 text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="removeLigne(${i})"><i class="bi bi-trash"></i></button></div>
+  </div></div>`).join('');save();}
+function save(){document.getElementById('lignesJson').value=JSON.stringify(lignes);}
+function addLigne(){lignes.push({produit_id:null,quantite:1,prix_unitaire_ht:0,tva:19});renderLignes();}
+function removeLigne(i){lignes.splice(i,1);renderLignes();}
+</script>
+{% endblock %}

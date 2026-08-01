@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Récapitulatif TVA{% endblock %}
+{% block topbar_title %}Récapitulatif TVA{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-receipt-cutoff me-2 text-warning"></i>Récapitulatif TVA</h1>
+  <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+<div class="card mb-4 no-print"><div class="card-body py-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto"><label class="form-label">Du</label><input type="date" name="debut" class="form-control" value="{{ debut }}"></div>
+    <div class="col-auto"><label class="form-label">Au</label><input type="date" name="fin" class="form-control" value="{{ fin }}"></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Actualiser</button></div>
+  </form>
+</div></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon green"><i class="bi bi-arrow-down-circle"></i></div><div><div class="kpi-value">{{ tva_collectee|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">TVA collectée (ventes)</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon blue"><i class="bi bi-arrow-up-circle"></i></div><div><div class="kpi-value">{{ tva_deductible|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">TVA déductible (achats)</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-icon {% if solde_tva >= 0 %}red{% else %}green{% endif %}"><i class="bi bi-cash-coin"></i></div><div><div class="kpi-value">{{ solde_tva|floatformat:0|intcomma }}<small style="font-size:11px;color:var(--text-secondary);"> DA</small></div><div class="kpi-label">Solde TVA à payer</div></div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <div class="card"><div class="card-header"><h6 class="card-title">TVA collectée (ventes) &mdash; base {{ base_ht_ventes|floatformat:2|intcomma }} DA</h6></div>
+      <table class="table-modern"><thead><tr><th>Taux</th><th class="text-end">Base HT</th><th class="text-end">Montant TVA</th></tr></thead>
+      <tbody>{% for t in tva_ventes_par_taux %}<tr>
+        <td>{{ t.tva }}%</td><td class="text-end">{{ t.base_ht|floatformat:2|intcomma }} DA</td><td class="text-end" style="font-weight:600;color:var(--primary);">{{ t.montant_tva|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="3" class="text-center py-3" style="color:var(--text-secondary);">Aucune donnée</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+  <div class="col-12 col-md-6">
+    <div class="card"><div class="card-header"><h6 class="card-title">TVA déductible (achats) &mdash; base {{ base_ht_achats|floatformat:2|intcomma }} DA</h6></div>
+      <table class="table-modern"><thead><tr><th>Taux</th><th class="text-end">Base HT</th><th class="text-end">Montant TVA</th></tr></thead>
+      <tbody>{% for t in tva_achats_par_taux %}<tr>
+        <td>{{ t.tva }}%</td><td class="text-end">{{ t.base_ht|floatformat:2|intcomma }} DA</td><td class="text-end" style="font-weight:600;color:var(--primary);">{{ t.montant_tva|floatformat:2|intcomma }} DA</td>
+      </tr>{% empty %}<tr><td colspan="3" class="text-center py-3" style="color:var(--text-secondary);">Aucune donnée</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+</div>
+{% endblock %}

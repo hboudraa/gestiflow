@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Performance techniciens{% endblock %}
+{% block topbar_title %}Performance techniciens{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="bi bi-tools me-2 text-warning"></i>Performance techniciens</h1>
+  <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+<div class="card mb-4 no-print"><div class="card-body py-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto"><label class="form-label">Du</label><input type="date" name="debut" class="form-control" value="{{ debut }}"></div>
+    <div class="col-auto"><label class="form-label">Au</label><input type="date" name="fin" class="form-control" value="{{ fin }}"></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Actualiser</button></div>
+  </form>
+</div></div>
+<div class="card"><div style="overflow-x:auto;"><table class="table-modern">
+  <thead><tr><th>Technicien</th><th class="text-end">Total OT</th><th class="text-end">Terminés</th><th class="text-end">En cours</th><th class="text-end">En attente</th><th class="text-end">Taux completion</th><th class="text-end">CA services</th></tr></thead>
+  <tbody>{% for s in stats %}<tr>
+    <td style="font-weight:500;">{{ s.nom_complet }}</td>
+    <td class="text-end">{{ s.total_ot }}</td>
+    <td class="text-end" style="color:#10b981;font-weight:600;">{{ s.nb_termine }}</td>
+    <td class="text-end" style="color:#3b82f6;">{{ s.nb_en_cours }}</td>
+    <td class="text-end" style="color:#f59e0b;">{{ s.nb_attente }}</td>
+    <td class="text-end" style="font-weight:700;">{{ s.taux_completion|floatformat:1 }}%</td>
+    <td class="text-end" style="font-weight:600;color:var(--primary);">{{ s.ca_services|floatformat:2|intcomma }} DA</td>
+  </tr>{% empty %}<tr><td colspan="7" class="text-center py-5" style="color:var(--text-secondary);">Aucune donnée sur cette période</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

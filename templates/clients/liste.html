@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Clients{% endblock %}
+{% block topbar_title %}Clients{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-people me-2 text-primary"></i>Clients</h1></div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'clients:inactifs' %}" class="btn btn-outline-secondary"><i class="bi bi-person-x me-1"></i>Inactifs</a>
+    <a href="{% url 'clients:export_csv' %}" class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i>CSV</a>
+    <a href="{% url 'clients:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouveau</a>
+  </div>
+</div>
+<form method="get" class="d-flex gap-2 mb-4">
+  <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher par nom, code, téléphone..." style="max-width:350px;">
+  <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  {% if q %}<a href="{% url 'clients:liste' %}" class="btn btn-outline-secondary">✕</a>{% endif %}
+</form>
+<div class="card">
+  <div style="overflow-x:auto;"><table class="table-modern">
+    <thead><tr><th>Code</th><th>Nom</th><th>Type</th><th>Téléphone</th><th>Email</th><th>Solde impayé</th><th></th></tr></thead>
+    <tbody>
+      {% for c in clients %}
+      <tr>
+        <td><code style="font-size:12px;color:var(--primary);">{{ c.code }}</code></td>
+        <td><a href="{% url 'clients:detail' c.pk %}" style="font-weight:500;color:var(--text-primary);text-decoration:none;">{{ c.nom }}</a></td>
+        <td><span class="badge bg-secondary-subtle text-secondary" style="font-size:11px;">{{ c.get_type_client_display }}</span></td>
+        <td style="color:var(--text-secondary);">{{ c.telephone|default:"—" }}</td>
+        <td style="color:var(--text-secondary);font-size:12.5px;">{{ c.email|default:"—" }}</td>
+        <td style="font-weight:600;color:{% if c.solde_en_cours > 0 %}#ef4444{% else %}#10b981{% endif %};">{{ c.solde_en_cours|floatformat:2|intcomma }} DA</td>
+        <td>
+          <a href="{% url 'clients:edit' c.pk %}" class="btn btn-sm btn-outline-secondary btn-icon me-1" title="Modifier"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'clients:detail' c.pk %}" class="btn btn-sm btn-outline-primary btn-icon" title="Voir"><i class="bi bi-eye"></i></a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center py-5" style="color:var(--text-secondary);"><i class="bi bi-people d-block mb-2" style="font-size:2rem;"></i>{% if q %}Aucun client pour "{{ q }}"{% else %}Aucun client enregistré{% endif %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+  {% if clients.has_other_pages %}
+  <div class="card-body border-top"><nav><ul class="pagination pagination-sm mb-0 justify-content-end">
+    {% if clients.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ clients.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">‹</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ clients.number }}/{{ clients.paginator.num_pages }}</span></li>
+    {% if clients.has_next %}<li class="page-item"><a class="page-link" href="?page={{ clients.next_page_number }}{% if q %}&q={{ q }}{% endif %}">›</a></li>{% endif %}
+  </ul></nav></div>
+  {% endif %}
+</div>
+{% endblock %}
