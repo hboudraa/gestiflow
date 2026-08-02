@@ -119,7 +119,16 @@ def categorie_edit(request, pk):
 def search_ajax(request):
     q  = sanitize_search_query(request.GET.get('q',''))
     qs = Produit.objects.filter(Q(nom__icontains=q)|Q(reference__icontains=q), supprime=False, actif=True)[:10]
-    data = [{'id': p.pk, 'reference': p.reference, 'nom': p.nom, 'prix_ht': float(p.prix_vente), 'tva': float(p.tva), 'stock': float(p.quantite_stock), 'unite': p.get_unite_display()} for p in qs]
+    data = [{
+        'id': p.pk,
+        'reference': p.reference,
+        'nom': p.nom,
+        'prix_vente_ht': float(p.prix_vente),
+        'prix_achat_ht': float(p.prix_achat),
+        'tva': float(p.tva),
+        'stock': float(p.quantite_stock),
+        'unite': p.get_unite_display(),
+    } for p in qs]
     return JsonResponse({'results': data})
 
 @login_required
