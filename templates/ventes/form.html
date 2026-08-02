@@ -51,7 +51,16 @@ function renderLignes(){
   const c=document.getElementById('lignesContainer');
   if(!lignes.length){c.innerHTML='<p class="text-secondary text-center py-3">Aucune ligne &mdash; cliquez sur Ajouter</p>';calcTotal();return;}
   c.innerHTML=lignes.map((l,i)=>`<div class="mb-2 p-3" style="background:var(--bg-body);border-radius:8px;border:1px solid var(--border-color);"><div class="row g-2 align-items-end">
-    <div class="col-12 col-md-4"><label class="form-label" style="font-size:11px;">Désignation</label><input type="text" class="form-control form-control-sm" value="${l.designation||''}" onchange="lignes[${i}].designation=this.value;calcTotal()"></div>
+    <div class="col-12 col-md-4" style="position:relative;">
+      <label class="form-label" style="font-size:11px;">Produit</label>
+      <input type="text" class="form-control form-control-sm produit-search" autocomplete="off"
+        value="${l.designation||''}"
+        placeholder="Tapez pour rechercher un produit..."
+        oninput="onProduitInput(this,${i})"
+        onchange="lignes[${i}].designation=this.value;calcTotal()">
+      <div class="produit-dropdown" id="produitDropdown${i}"
+        style="display:none;position:absolute;top:100%;left:0;width:100%;background:#fff;border:1px solid var(--border-color);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:60;max-height:220px;overflow-y:auto;margin-top:2px;"></div>
+    </div>
     <div class="col-6 col-md-1"><label class="form-label" style="font-size:11px;">Qté</label><input type="number" class="form-control form-control-sm" value="${l.quantite||1}" min="0.01" step="0.01" onchange="lignes[${i}].quantite=parseFloat(this.value)||1;calcTotal()"></div>
     <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">PU HT</label><input type="number" class="form-control form-control-sm" value="${l.prix_unitaire_ht||0}" min="0" step="0.01" onchange="lignes[${i}].prix_unitaire_ht=parseFloat(this.value)||0;calcTotal()"></div>
     <div class="col-4 col-md-1"><label class="form-label" style="font-size:11px;">Rem%</label><input type="number" class="form-control form-control-sm" value="${l.remise||0}" min="0" max="100" step="0.5" onchange="lignes[${i}].remise=parseFloat(this.value)||0;calcTotal()"></div>
@@ -63,6 +72,51 @@ function renderLignes(){
 }
 function addLigne(){lignes.push({designation:'',quantite:1,prix_unitaire_ht:0,remise:0,tva:TVA_DEF,produit_id:null});renderLignes();}
 function removeLigne(i){lignes.splice(i,1);renderLignes();}
+
+let produitSearchTimer=null;
+function onProduitInput(inputEl, idx){
+  lignes[idx].designation = inputEl.value;
+  lignes[idx].produit_id = null; // texte libre tant qu'aucun produit n'est choisi
+  const dropdown = document.getElementById('produitDropdown'+idx);
+  const q = inputEl.value.trim();
+  clearTimeout(produitSearchTimer);
+  if(q.length < 2){ dropdown.style.display='none'; return; }
+  produitSearchTimer = setTimeout(async () => {
+    try{
+      const r = await fetch('/produits/ajax/recherche/?q=' + encodeURIComponent(q));
+      const d = await r.json();
+      if(!d.results.length){
+        dropdown.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--text-secondary);">Aucun produit trouvé — texte libre conservé</div>';
+      } else {
+        dropdown.innerHTML = d.results.map(p => `
+          <div class="produit-option" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border-color);"
+            onmouseover="this.style.background='var(--bg-body)'" onmouseout="this.style.background='#fff'"
+            onclick='selectProduit(${idx}, ${JSON.stringify(p).replace(/'/g,"&apos;")})'>
+            <div style="font-size:13px;font-weight:600;">${p.nom}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">
+              <code>${p.reference}</code> &middot; Stock: ${p.stock} ${p.unite} &middot; ${p.prix_vente_ht.toFixed(2)} DA HT
+            </div>
+          </div>`).join('');
+      }
+      dropdown.style.display = 'block';
+    }catch(e){ dropdown.style.display='none'; }
+  }, 250);
+}
+
+function selectProduit(idx, p){
+  lignes[idx].produit_id        = p.id;
+  lignes[idx].designation       = p.nom;
+  lignes[idx].prix_unitaire_ht  = p.prix_vente_ht;
+  lignes[idx].tva               = p.tva;
+  renderLignes();
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.produit-search') && !e.target.closest('.produit-dropdown')){
+    document.querySelectorAll('.produit-dropdown').forEach(d => d.style.display='none');
+  }
+});
+
 renderLignes();
 </script>
 {% endblock %}
