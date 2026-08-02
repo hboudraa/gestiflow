@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+import logging
+logger = logging.getLogger(__name__)
 
 def page_404(request, exception=None):
     return render(request, 'errors/404.html', status=404)
@@ -22,19 +24,23 @@ def recherche_globale(request):
         try:
             from apps.clients.models import Client
             resultats['clients'] = Client.objects.filter(Q(nom__icontains=q)|Q(code__icontains=q), supprime=False)[:8]
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_globale (clients): {e}")
         try:
             from apps.produits.models import Produit
             resultats['produits'] = Produit.objects.filter(Q(nom__icontains=q)|Q(reference__icontains=q), supprime=False)[:8]
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_globale (produits): {e}")
         try:
             from apps.ventes.models import Facture
             resultats['factures'] = Facture.objects.filter(Q(numero__icontains=q)|Q(client__nom__icontains=q)).select_related('client')[:6]
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_globale (factures): {e}")
         try:
             from apps.devis.models import Devis
             resultats['devis'] = Devis.objects.filter(Q(numero__icontains=q)|Q(client__nom__icontains=q)).select_related('client')[:5]
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_globale (devis): {e}")
     total = sum(len(v) for v in resultats.values())
     return render(request, 'core/recherche_globale.html', {'q': q, 'resultats': resultats, 'total': total})
 
@@ -49,17 +55,20 @@ def recherche_ajax(request):
             from apps.clients.models import Client
             for c in Client.objects.filter(Q(nom__icontains=q)|Q(code__icontains=q), supprime=False)[:4]:
                 data.append({'type':'Client','icon':'bi-person','label':c.nom,'sub':c.code,'url':f'/clients/{c.pk}/'})
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_ajax (clients): {e}")
         try:
             from apps.produits.models import Produit
             for p in Produit.objects.filter(Q(nom__icontains=q)|Q(reference__icontains=q), supprime=False)[:4]:
                 data.append({'type':'Produit','icon':'bi-box-seam','label':p.nom,'sub':p.reference,'url':f'/produits/{p.pk}/'})
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_ajax (produits): {e}")
         try:
             from apps.ventes.models import Facture
             for f in Facture.objects.filter(Q(numero__icontains=q)|Q(client__nom__icontains=q)).select_related('client')[:3]:
                 data.append({'type':'Facture','icon':'bi-receipt','label':f.numero,'sub':f.client.nom,'url':f'/ventes/{f.pk}/'})
-        except Exception: pass
+        except Exception as e:
+            logger.exception(f"Erreur dans recherche_ajax (factures): {e}")
     return JsonResponse({'results': data, 'query': q})
 
 @login_required

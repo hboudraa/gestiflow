@@ -9,7 +9,8 @@ def get_entreprise_email():
         email = Parametre.get('EMAIL', '')
         nom   = Parametre.get('NOM_ENTREPRISE', 'GestiFlow')
         if email: return f'{nom} <{email}>'
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans get_entreprise_email: {e}")
     return settings.DEFAULT_FROM_EMAIL
 
 def _send_with_pdf(destinataire, sujet, corps, pdf_bytes, filename, cc=None):

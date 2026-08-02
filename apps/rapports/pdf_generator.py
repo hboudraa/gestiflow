@@ -5,6 +5,7 @@ Generates: Facture, Devis, Achat, Location, Tarif, Bilan Journalier
 """
 from io import BytesIO
 from decimal import Decimal
+import logging
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -33,6 +34,8 @@ C_LIGHT   = colors.HexColor('#F0F4FA')
 C_WHITE   = colors.HexColor('#FFFFFF')
 C_BORDER  = colors.HexColor('#D9D9D9')
 
+logger = logging.getLogger(__name__)
+
 
 def cfg():
     """Returns company config from Parametre DB first, then .env fallback."""
@@ -42,8 +45,8 @@ def cfg():
             from apps.core.models import Parametre
             val = Parametre.get(cle, '')
             if val: return val
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception(f"Erreur dans pdf_generator.cfg (parametre {cle}): {e}")
         return base.get(env_key, default)
     return {
         'nom':    get_param('NOM_ENTREPRISE', 'NOM_ENTREPRISE', 'Mon Entreprise'),
@@ -152,8 +155,8 @@ class PDFDoc:
                               font='Helvetica-Bold', size=10,
                               color=C_TEXT, align='right')
                     logo_drawn = True
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.exception(f"Erreur lors du dessin du logo dans le PDF: {e}")
 
         if not logo_drawn:
             self.text(rx, top - 10 * mm, self.ent['nom'],

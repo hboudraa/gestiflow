@@ -1,5 +1,7 @@
 from django.utils import timezone
 from datetime import timedelta
+import logging
+logger = logging.getLogger(__name__)
 
 def get_all_notifications(user):
     today = timezone.now().date()
@@ -24,7 +26,8 @@ def get_all_notifications(user):
                 'subtitle': f'{jours} jour(s) de retard — Restant : {f.montant_restant:,.2f} DA',
                 'url': f'/ventes/{f.pk}/', 'date': f.date_echeance,
             })
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans get_all_notifications (factures en retard): {e}")
     try:
         from apps.devis.models import Devis
         for d in Devis.objects.filter(
@@ -40,7 +43,8 @@ def get_all_notifications(user):
                 'subtitle': f'Expire dans {jr} jour(s)',
                 'url': f'/devis/{d.pk}/', 'date': d.date_validite,
             })
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans get_all_notifications (devis expirant): {e}")
     try:
         from apps.produits.models import Produit
         from django.db.models import F
@@ -55,7 +59,8 @@ def get_all_notifications(user):
                 'subtitle': f'Stock : {p.quantite_stock} {p.unite} (seuil : {p.seuil_alerte})',
                 'url': f'/produits/{p.pk}/', 'date': None,
             })
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans get_all_notifications (stock bas): {e}")
     return notifs
 
 def get_notification_count(user):

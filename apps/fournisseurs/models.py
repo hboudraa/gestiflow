@@ -1,5 +1,7 @@
 from django.db import models
 from apps.core.models import TimestampedModel, SoftDeleteModel, Adresse
+import logging
+logger = logging.getLogger(__name__)
 
 class Fournisseur(TimestampedModel, SoftDeleteModel, Adresse):
     code              = models.CharField(max_length=20, unique=True, blank=True)
@@ -35,5 +37,6 @@ class Fournisseur(TimestampedModel, SoftDeleteModel, Adresse):
             from django.db.models import Sum
             r = self.achats.filter(statut__in=['en_attente','receptionne']).aggregate(t=Sum('total_ttc'))
             return r['t'] or 0
-        except Exception:
+        except Exception as e:
+            logger.exception(f"Erreur dans Fournisseur.solde_du ({self.pk}): {e}")
             return 0

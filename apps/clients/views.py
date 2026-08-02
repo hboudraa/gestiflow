@@ -7,6 +7,8 @@ from django.http import JsonResponse, HttpResponse
 from .models import Client
 from .forms import ClientForm
 from apps.core.sanitizers import sanitize_search_query
+import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def liste(request):
@@ -23,7 +25,8 @@ def detail(request, pk):
     stats  = {}
     try:
         stats = client.factures.aggregate(total=Sum('total_ttc'), paye=Sum('montant_paye'), restant=Sum('montant_restant'), nb=Count('id'))
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans detail (stats client {pk}): {e}")
     return render(request, 'clients/detail.html', {'client': client, 'stats': stats})
 
 @login_required

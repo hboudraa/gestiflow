@@ -1,5 +1,7 @@
 from django.db import models
 from apps.core.models import TimestampedModel, SoftDeleteModel, Adresse
+import logging
+logger = logging.getLogger(__name__)
 
 class Client(TimestampedModel, SoftDeleteModel, Adresse):
     class TypeClient(models.TextChoices):
@@ -41,5 +43,6 @@ class Client(TimestampedModel, SoftDeleteModel, Adresse):
             from django.db.models import Sum
             r = self.factures.filter(statut__in=['en_attente','partielle']).aggregate(t=Sum('montant_restant'))
             return r['t'] or 0
-        except Exception:
+        except Exception as e:
+            logger.exception(f"Erreur dans Client.solde_en_cours ({self.pk}): {e}")
             return 0

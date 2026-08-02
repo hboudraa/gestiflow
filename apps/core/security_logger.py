@@ -23,7 +23,8 @@ def log_security_event(event_type, request=None, utilisateur=None, details='', m
             utilisateur=utilisateur, action=event_type,
             module=module, details=details[:500], adresse_ip=ip or None,
         )
-    except Exception: pass
+    except Exception as e:
+        logger.exception(f"Erreur dans log_security_event: {e}")
 
 def log_login_success(request, user):
     log_security_event(SecurityEvent.LOGIN_SUCCESS, request, user, f'Connexion — {user.username}')
