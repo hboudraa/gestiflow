@@ -9,3 +9,6 @@ django-import-export
 whitenoise
 gunicorn
 psycopg2-binary
+pytest
+pytest-django
+factory-boy
