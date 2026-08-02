@@ -43,10 +43,11 @@ class Location(TimestampedModel):
     @property
     def sous_total_ht(self): return self.total_ht
 
-    def calculer_totaux(self):
+    def calculer_totaux(self, save=True):
         self.total_ht  = sum(a.sous_total_ht for a in self.articles.all()) or Decimal('0')
         self.total_ttc = self.total_ht * Decimal('1.19') + self.penalite_retard
-        self.save()
+        if save:
+            self.save()
 
 
 class ArticleLocation(TimestampedModel):

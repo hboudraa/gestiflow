@@ -37,12 +37,13 @@ class AchatFournisseur(TimestampedModel):
             self.numero = f"ACH{year}{seq:05d}"
         super().save(*args, **kwargs)
 
-    def calculer_totaux(self):
+    def calculer_totaux(self, save=True):
         lignes = self.lignes.all()
         self.total_ht  = sum(l.total_ht for l in lignes) or Decimal('0')
         self.total_tva = sum(l.montant_tva for l in lignes) or Decimal('0')
         self.total_ttc = self.total_ht + self.total_tva
-        self.save()
+        if save:
+            self.save()
 
 
 class LigneAchat(TimestampedModel):

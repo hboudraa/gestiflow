@@ -55,13 +55,14 @@ class OrdreDeTravail(TimestampedModel):
             self.numero = f"OT{year}{seq:05d}"
         super().save(*args, **kwargs)
 
-    def calculer_totaux(self):
+    def calculer_totaux(self, save=True):
         cout_pieces = sum(p.total_ht for p in self.pieces_utilisees.all()) or Decimal('0')
         cout_outils = sum(o.total_ht for o in self.outils_utilises.filter(inclure_dans_facture=True)) or Decimal('0')
         self.cout_pieces = cout_pieces
         self.total_ht    = self.cout_main_oeuvre + cout_pieces + cout_outils
         self.total_ttc   = self.total_ht * (1 + self.tva / Decimal('100'))
-        self.save()
+        if save:
+            self.save()
 
 
 class PieceService(TimestampedModel):

@@ -48,7 +48,7 @@ class Facture(TimestampedModel):
     def montant_restant(self):
         return max(Decimal('0'), self.total_ttc - self.montant_paye)
 
-    def calculer_totaux(self):
+    def calculer_totaux(self, save=True):
         lignes = self.lignes.all()
         sous_total = sum(l.total_ht for l in lignes) or Decimal('0')
         remise_amt = sous_total * self.remise_globale / Decimal('100')
@@ -59,7 +59,8 @@ class Facture(TimestampedModel):
         self.total_ht       = total_ht
         self.total_tva      = total_tva
         self.total_ttc      = total_ht + total_tva
-        self.save()
+        if save:
+            self.save()
 
     def mettre_a_jour_statut(self):
         if self.statut in ['annulee','avoir','brouillon']: return
