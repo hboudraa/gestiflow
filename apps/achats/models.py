@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from apps.core.models import TimestampedModel
 from decimal import Decimal
+import re
 
 class AchatFournisseur(TimestampedModel):
     class Statut(models.TextChoices):
@@ -33,7 +34,16 @@ class AchatFournisseur(TimestampedModel):
             from django.utils import timezone as tz
             year = tz.now().year
             last = AchatFournisseur.objects.filter(numero__startswith=f'ACH{year}').order_by('-numero').first()
-            seq  = int(last.numero[7:]) + 1 if last else 1
+            if last:
+                match = re.search(r'(\d+)$', last.numero)
+                if match:
+                    trailing = match.group(1)
+                    annee = str(year)
+                    seq = int(trailing[len(annee):]) + 1 if trailing.startswith(annee) and trailing != annee else int(trailing) + 1
+                else:
+                    seq = 1
+            else:
+                seq = 1
             self.numero = f"ACH{year}{seq:05d}"
         super().save(*args, **kwargs)
 

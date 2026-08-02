@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from apps.core.models import TimestampedModel
 from decimal import Decimal
+import re
 
 class Facture(TimestampedModel):
     class Statut(models.TextChoices):
@@ -40,7 +41,16 @@ class Facture(TimestampedModel):
             from django.utils import timezone as tz
             year = tz.now().year
             last = Facture.objects.filter(numero__startswith=f'FAC{year}').order_by('-numero').first()
-            seq  = int(last.numero[7:]) + 1 if last else 1
+            if last:
+                match = re.search(r'(\d+)$', last.numero)
+                if match:
+                    trailing = match.group(1)
+                    annee = str(year)
+                    seq = int(trailing[len(annee):]) + 1 if trailing.startswith(annee) and trailing != annee else int(trailing) + 1
+                else:
+                    seq = 1
+            else:
+                seq = 1
             self.numero = f"FAC{year}{seq:05d}"
         super().save(*args, **kwargs)
 
