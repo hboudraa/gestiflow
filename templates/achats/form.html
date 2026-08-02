@@ -16,6 +16,20 @@
         <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Créer l'achat</button>
         <a href="javascript:history.back()" class="btn btn-outline-secondary">Annuler</a>
       </div>
+      <script>
+      document.getElementById('mainForm').addEventListener('submit', function(e){
+        const sansProduit = lignes.some(l => !l.produit_id);
+        if(lignes.length === 0){
+          e.preventDefault();
+          alert("Ajoutez au moins une ligne avant d'enregistrer l'achat.");
+          return;
+        }
+        if(sansProduit){
+          e.preventDefault();
+          alert("Chaque ligne doit correspondre à un produit sélectionné dans la liste (pas de texte libre pour un achat).");
+        }
+      });
+      </script>
     </form>
   </div></div>
 </div></div>
@@ -28,7 +42,16 @@ function renderLignes(){
   const c=document.getElementById('lignesContainer');
   if(!lignes.length){c.innerHTML='<p class="text-secondary text-center py-3">Aucune ligne</p>';document.getElementById('lignesJson').value='[]';return;}
   c.innerHTML=lignes.map((l,i)=>`<div class="mb-2 p-3" style="background:var(--bg-body);border-radius:8px;border:1px solid var(--border-color);"><div class="row g-2 align-items-end">
-    <div class="col-12 col-md-4"><label class="form-label" style="font-size:11px;">ID Produit</label><input type="number" class="form-control form-control-sm" placeholder="ID produit" value="${l.produit_id||''}" onchange="lignes[${i}].produit_id=parseInt(this.value)||null;save()"></div>
+    <div class="col-12 col-md-4" style="position:relative;">
+      <label class="form-label" style="font-size:11px;">Produit <span class="text-danger">*</span></label>
+      <input type="text" class="form-control form-control-sm produit-search" autocomplete="off"
+        value="${l.designation||''}"
+        placeholder="Tapez pour rechercher un produit..."
+        oninput="onProduitInput(this,${i})">
+      <div class="produit-dropdown" id="produitDropdown${i}"
+        style="display:none;position:absolute;top:100%;left:0;width:100%;background:#fff;border:1px solid var(--border-color);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:60;max-height:220px;overflow-y:auto;margin-top:2px;"></div>
+      ${l.produit_id ? '<div style="font-size:10.5px;color:#10b981;margin-top:3px;"><i class="bi bi-check-circle-fill"></i> Produit sélectionné</div>' : '<div style="font-size:10.5px;color:#ef4444;margin-top:3px;">Aucun produit sélectionné</div>'}
+    </div>
     <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">Quantité</label><input type="number" class="form-control form-control-sm" value="${l.quantite||1}" min="0.01" step="0.01" onchange="lignes[${i}].quantite=parseFloat(this.value)||1;save()"></div>
     <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">PU HT</label><input type="number" class="form-control form-control-sm" value="${l.prix_unitaire_ht||0}" min="0" step="0.01" onchange="lignes[${i}].prix_unitaire_ht=parseFloat(this.value)||0;save()"></div>
     <div class="col-6 col-md-2"><label class="form-label" style="font-size:11px;">TVA %</label><input type="number" class="form-control form-control-sm" value="${l.tva||19}" step="0.01" onchange="lignes[${i}].tva=parseFloat(this.value)||19;save()"></div>
@@ -36,7 +59,51 @@ function renderLignes(){
     <div class="col-12 col-md-1 text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="removeLigne(${i})"><i class="bi bi-trash"></i></button></div>
   </div></div>`).join('');save();}
 function save(){document.getElementById('lignesJson').value=JSON.stringify(lignes);}
-function addLigne(){lignes.push({produit_id:null,quantite:1,prix_unitaire_ht:0,tva:19});renderLignes();}
+function addLigne(){lignes.push({produit_id:null,designation:'',quantite:1,prix_unitaire_ht:0,tva:19});renderLignes();}
 function removeLigne(i){lignes.splice(i,1);renderLignes();}
+
+let produitSearchTimer=null;
+function onProduitInput(inputEl, idx){
+  lignes[idx].designation = inputEl.value;
+  lignes[idx].produit_id = null;
+  const dropdown = document.getElementById('produitDropdown'+idx);
+  const q = inputEl.value.trim();
+  clearTimeout(produitSearchTimer);
+  if(q.length < 2){ dropdown.style.display='none'; return; }
+  produitSearchTimer = setTimeout(async () => {
+    try{
+      const r = await fetch('/produits/ajax/recherche/?q=' + encodeURIComponent(q));
+      const d = await r.json();
+      if(!d.results.length){
+        dropdown.innerHTML = '<div style="padding:10px 14px;font-size:12.5px;color:var(--text-secondary);">Aucun produit trouvé</div>';
+      } else {
+        dropdown.innerHTML = d.results.map(p => `
+          <div class="produit-option" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border-color);"
+            onmouseover="this.style.background='var(--bg-body)'" onmouseout="this.style.background='#fff'"
+            onclick='selectProduit(${idx}, ${JSON.stringify(p).replace(/'/g,"&apos;")})'>
+            <div style="font-size:13px;font-weight:600;">${p.nom}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">
+              <code>${p.reference}</code> &middot; Stock: ${p.stock} ${p.unite} &middot; Achat: ${p.prix_achat_ht.toFixed(2)} DA
+            </div>
+          </div>`).join('');
+      }
+      dropdown.style.display = 'block';
+    }catch(e){ dropdown.style.display='none'; }
+  }, 250);
+}
+
+function selectProduit(idx, p){
+  lignes[idx].produit_id       = p.id;
+  lignes[idx].designation      = p.nom;
+  lignes[idx].prix_unitaire_ht = p.prix_achat_ht;
+  lignes[idx].tva              = p.tva;
+  renderLignes();
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.produit-search') && !e.target.closest('.produit-dropdown')){
+    document.querySelectorAll('.produit-dropdown').forEach(d => d.style.display='none');
+  }
+});
 </script>
 {% endblock %}
