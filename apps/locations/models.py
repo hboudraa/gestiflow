@@ -45,7 +45,8 @@ class Location(TimestampedModel):
 
     def calculer_totaux(self, save=True):
         self.total_ht  = sum(a.sous_total_ht for a in self.articles.all()) or Decimal('0')
-        self.total_ttc = self.total_ht * Decimal('1.19') + self.penalite_retard
+        tva_pct = Decimal(str(settings.GESTIFLOW.get('TVA_DEFAUT', '19')))
+        self.total_ttc = self.total_ht * (Decimal('1') + tva_pct / Decimal('100')) + self.penalite_retard
         if save:
             self.save()
 
