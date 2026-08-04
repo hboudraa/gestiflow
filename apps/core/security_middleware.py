@@ -8,10 +8,8 @@ class SecurityHeadersMiddleware:
         response['X-XSS-Protection']          = '1; mode=block'
         response['Referrer-Policy']           = 'strict-origin-when-cross-origin'
         response['Permissions-Policy']        = 'camera=(), microphone=(), geolocation=()'
-<<<<<<< HEAD
         response.headers.pop('Server', None)
         response.headers.pop('X-Powered-By', None)
-=======
         # Basic Content Security Policy — adjust to your asset hosts and needs.
         # This CSP allows the Bootstrap/Icons CDN used by the current templates while
         # keeping the rest of the policy fairly restrictive.
@@ -29,5 +27,4 @@ class SecurityHeadersMiddleware:
         except Exception:
             # Some Django versions expose response as a dict-like; ignore if not available
             pass
->>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
         return response

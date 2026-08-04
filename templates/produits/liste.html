@@ -24,12 +24,6 @@
 </form>
 <div class="card">
   <div style="overflow-x:auto;"><table class="table-modern">
-<<<<<<< HEAD
-    <thead><tr><th>Référence</th><th>Désignation</th><th>Catégorie</th><th class="text-end">Stock</th><th class="text-end">PU Vente</th><th>Statut</th><th></th></tr></thead>
-    <tbody>
-      {% for p in produits %}
-      <tr>
-=======
     <thead><tr><th>Image</th><th>Référence</th><th>Désignation</th><th>Catégorie</th><th class="text-end">Stock</th><th class="text-end">PU Vente</th><th>Statut</th><th></th></tr></thead>
     <tbody>
       {% for p in produits %}
@@ -45,7 +39,6 @@
           </a>
           {% endif %}
         </td>
->>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
         <td><code style="font-size:12px;color:var(--primary);">{{ p.reference }}</code></td>
         <td><a href="{% url 'produits:detail' p.pk %}" style="font-weight:500;color:var(--text-primary);text-decoration:none;">{{ p.nom }}</a></td>
         <td style="color:var(--text-secondary);font-size:12.5px;">{{ p.categorie.nom|default:"—" }}</td>
@@ -58,11 +51,7 @@
         </td>
       </tr>
       {% empty %}
-<<<<<<< HEAD
-      <tr><td colspan="7" class="text-center py-5" style="color:var(--text-secondary);"><i class="bi bi-box-seam d-block mb-2" style="font-size:2rem;"></i>Aucun produit</td></tr>
-=======
       <tr><td colspan="8" class="text-center py-5" style="color:var(--text-secondary);"><i class="bi bi-box-seam d-block mb-2" style="font-size:2rem;"></i>Aucun produit</td></tr>
->>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
       {% endfor %}
     </tbody>
   </table></div>

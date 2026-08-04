@@ -203,15 +203,13 @@ def import_preview(request):
     if 'fichier' not in request.FILES:
         messages.error(request, "Aucun fichier fourni.")
         return redirect('produits:import_excel')
-<<<<<<< HEAD
-=======
+
     # Verify uploaded file extension before processing
     f = request.FILES['fichier']
     ALLOWED_EXT = ('.xlsx', '.xlsm', '.xltx', '.xls')
     if not any(f.name.lower().endswith(ext) for ext in ALLOWED_EXT):
         messages.error(request, "Type de fichier non autorise. Formats acceptes: xlsx, xlsm, xltx, xls.")
         return redirect('produits:import_excel')
->>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
     try:
         import openpyxl, json
         wb  = openpyxl.load_workbook(request.FILES['fichier'], read_only=True, data_only=True)
