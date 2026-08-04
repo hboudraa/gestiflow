@@ -53,8 +53,17 @@ class LoginAttempt(models.Model):
 
     @classmethod
     def get_ip(cls, request):
+<<<<<<< HEAD
         xff = request.META.get('HTTP_X_FORWARDED_FOR')
         return xff.split(',')[0].strip() if xff else request.META.get('REMOTE_ADDR', '0.0.0.0')
+=======
+        from django.conf import settings
+        xff = request.META.get('HTTP_X_FORWARDED_FOR')
+        # Only trust X-Forwarded-For if explicitly enabled in settings (behind a trusted proxy)
+        if getattr(settings, 'USE_X_FORWARDED_FOR', False) and xff:
+            return xff.split(',')[0].strip()
+        return request.META.get('REMOTE_ADDR', '0.0.0.0')
+>>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
 
     @classmethod
     def est_bloque(cls, request):

@@ -1,4 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+<<<<<<< HEAD
+=======
+from django.utils.http import url_has_allowed_host_and_scheme
+>>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -28,7 +32,14 @@ def connexion(request):
                 user.derniere_activite = timezone.now()
                 user.save(update_fields=['derniere_activite'])
                 messages.success(request, f"Bienvenue, {user.get_full_name() or user.username} !")
+<<<<<<< HEAD
                 return redirect(request.GET.get('next', 'dashboard:index'))
+=======
+                next_url = request.GET.get('next')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                    return redirect(next_url)
+                return redirect('dashboard:index')
+>>>>>>> 1e7c075 (Security: prevent open-redirect, escape email body, validate Excel uploads, X-Forwarded-For opt-in, add CSP whitelist)
             else:
                 nb = LoginAttempt.enregistrer_echec(request, form.cleaned_data['username'])
                 log_login_failed(request, form.cleaned_data['username'])
