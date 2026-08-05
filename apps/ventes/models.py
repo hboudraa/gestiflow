@@ -100,8 +100,9 @@ class LigneFacture(TimestampedModel):
         ordering = ['ordre','cree_le']
 
     def save(self, *args, **kwargs):
-        self.total_ht    = self.quantite * self.prix_unitaire_ht * (1 - self.remise/100)
-        self.montant_tva = self.total_ht * self.tva / 100
+        taux_remise = Decimal('1') - (self.remise / Decimal('100'))
+        self.total_ht    = self.quantite * self.prix_unitaire_ht * taux_remise
+        self.montant_tva = self.total_ht * self.tva / Decimal('100')
         super().save(*args, **kwargs)
 
 

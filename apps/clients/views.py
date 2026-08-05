@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum, Count, Max, F, ExpressionWrapper, DecimalField
+from django.db.models import Q, Sum, Count, Max
 from django.http import JsonResponse, HttpResponse
 from .models import Client
 from .forms import ClientForm
@@ -24,8 +24,8 @@ def detail(request, pk):
     from django.db.models import Sum
     stats  = {}
     try:
-        restant_expr = ExpressionWrapper(F('total_ttc') - F('montant_paye') - F('montant_remise'), output_field=DecimalField())
-        stats = client.factures.aggregate(total=Sum('total_ttc'), paye=Sum('montant_paye'), restant=Sum(restant_expr), nb=Count('id'))
+        stats = client.factures.aggregate(total=Sum('total_ttc'), paye=Sum('montant_paye'), remise=Sum('montant_remise'), nb=Count('id'))
+        stats['restant'] = (stats['total'] or 0) - (stats['paye'] or 0) - (stats['remise'] or 0)
     except Exception as e:
         logger.exception(f"Erreur dans detail (stats client {pk}): {e}")
     return render(request, 'clients/detail.html', {'client': client, 'stats': stats})
@@ -67,8 +67,8 @@ def rapport(request, pk):
     from apps.locations.models import Location
     from apps.devis.models import Devis
     factures = Facture.objects.filter(client=client).order_by('-date_facture')
-    restant_expr = ExpressionWrapper(F('total_ttc') - F('montant_paye') - F('montant_remise'), output_field=DecimalField())
-    stats    = factures.aggregate(total_ttc=Sum('total_ttc'), total_paye=Sum('montant_paye'), total_restant=Sum(restant_expr), nb=Count('id'))
+    stats    = factures.aggregate(total_ttc=Sum('total_ttc'), total_paye=Sum('montant_paye'), total_remise=Sum('montant_remise'), nb=Count('id'))
+    stats['total_restant'] = (stats['total_ttc'] or 0) - (stats['total_paye'] or 0) - (stats['total_remise'] or 0)
     services = OrdreDeTravail.objects.filter(client=client).order_by('-date_entree')
     locations= Location.objects.filter(client=client).order_by('-date_debut')
     devis_list = Devis.objects.filter(client=client).order_by('-date_devis')

@@ -40,10 +40,10 @@ class Client(TimestampedModel, SoftDeleteModel, Adresse):
     @property
     def solde_en_cours(self):
         try:
-            from django.db.models import Sum, F, ExpressionWrapper, DecimalField
-            restant = ExpressionWrapper(F('total_ttc') - F('montant_paye') - F('montant_remise'), output_field=DecimalField())
-            r = self.factures.filter(statut__in=['en_attente','partielle']).aggregate(t=Sum(restant))
-            return r['t'] or 0
+            from django.db.models import Sum
+            r = self.factures.filter(statut__in=['en_attente','partielle']).aggregate(
+                ttc=Sum('total_ttc'), paye=Sum('montant_paye'), remise=Sum('montant_remise'))
+            return (r['ttc'] or 0) - (r['paye'] or 0) - (r['remise'] or 0)
         except Exception as e:
             logger.exception(f"Erreur dans Client.solde_en_cours ({self.pk}): {e}")
             return 0
