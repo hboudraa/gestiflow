@@ -9,20 +9,30 @@
 <style>
 :root{--primary:#1e3a5f;--secondary:#2e75b6;--accent:#3b82f6;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--bg-body:#f8fafc;--bg-card:#ffffff;--border-color:#e2e8f0;--text-primary:#0f172a;--text-secondary:#64748b;}
 body{background:var(--bg-body);color:var(--text-primary);font-family:'Segoe UI',Arial,sans-serif;font-size:14px;}
-.sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--primary);z-index:100;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar{position:fixed;top:0;left:0;width:264px;height:100vh;background:linear-gradient(180deg,#16365d 0%,#102846 100%);z-index:100;display:flex;flex-direction:column;overflow:hidden;box-shadow:8px 0 28px rgba(15,23,42,.12);}
 .sidebar-nav{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding-bottom:8px;}
 .sidebar-nav::-webkit-scrollbar{width:6px;}
 .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
-.sidebar-footer{flex:0 0 auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.1);background:var(--primary);}
-.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:8px;}
-.sidebar-logo-text{color:#fff;font-size:20px;font-weight:700;text-decoration:none;}
-.sidebar-section{padding:8px 12px 4px;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-top:8px;}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.75);text-decoration:none;border-radius:8px;margin:1px 8px;font-size:13px;transition:all .15s;}
-.sidebar-item:hover,.sidebar-item.active{background:rgba(59,130,246,.25);color:#fff;}
-.sidebar-item.active{border-left:3px solid var(--accent);}
+.sidebar-footer{flex:0 0 auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.1);background:rgba(3,18,38,.18);}
+.sidebar-logo{padding:22px 18px 17px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:6px;}
+.sidebar-logo-text{color:#fff;font-size:21px;font-weight:700;text-decoration:none;letter-spacing:-.4px;}
+.sidebar-logo-text i{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:9px;background:linear-gradient(135deg,#60a5fa,#2563eb);font-size:16px;box-shadow:0 5px 12px rgba(37,99,235,.35);}
+.sidebar-group{margin:4px 8px;}
+.sidebar-group-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:10px 10px;color:rgba(255,255,255,.68);background:transparent;border:0;border-radius:9px;font:600 11px 'Segoe UI',Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;text-align:left;cursor:pointer;transition:background .18s,color .18s;}
+.sidebar-group-toggle:hover,.sidebar-group-toggle[aria-expanded="true"]{background:rgba(255,255,255,.07);color:#fff;}
+.sidebar-group-toggle .group-icon{width:19px;font-size:15px;text-align:center;color:#93c5fd;}
+.sidebar-group-toggle .chevron{margin-left:auto;font-size:12px;transition:transform .22s ease;}
+.sidebar-group-toggle[aria-expanded="true"] .chevron{transform:rotate(180deg);}
+.sidebar-submenu{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease;}
+.sidebar-submenu.open{grid-template-rows:1fr;}
+.sidebar-submenu-inner{min-height:0;overflow:hidden;padding:0 2px;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;color:rgba(255,255,255,.75);text-decoration:none;border-radius:8px;margin:2px 3px;font-size:13px;transition:all .15s;}
+.sidebar-submenu .sidebar-item{padding-left:17px;font-size:12.5px;}
+.sidebar-item:hover,.sidebar-item.active{background:linear-gradient(90deg,rgba(59,130,246,.32),rgba(59,130,246,.13));color:#fff;}
+.sidebar-item.active{box-shadow:inset 3px 0 0 var(--accent);font-weight:600;}
 .sidebar-item i{font-size:15px;width:18px;text-align:center;}
 .sidebar-badge{background:var(--warning);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;}
-.main-content{margin-left:240px;min-height:100vh;}
+.main-content{margin-left:264px;min-height:100vh;}
 .topbar{background:#fff;border-bottom:1px solid var(--border-color);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:99;}
 .topbar-title{font-weight:600;font-size:15px;flex:1;}
 .topbar-search{position:relative;display:flex;align-items:center;}
@@ -103,30 +113,58 @@ body{background:var(--bg-body);color:var(--text-primary);font-family:'Segoe UI',
       <a class="sidebar-logo-text" href="{% url 'dashboard:index' %}"><i class="bi bi-lightning-charge-fill me-2"></i>GestiFlow</a>
       <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;">{{ ENTREPRISE.NOM_ENTREPRISE }}</div>
     </div>
-    <div class="sidebar-section">Principal</div>
     <a href="{% url 'dashboard:index' %}" class="sidebar-item {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"><i class="bi bi-speedometer2"></i><span>Tableau de bord</span></a>
-    <a href="{% url 'core:notifications' %}" class="sidebar-item"><i class="bi bi-bell{% if notifications_count %}-fill{% endif %}" {% if notifications_count %}style="color:#f59e0b"{% endif %}></i><span>Notifications</span>{% if notifications_count %}<span class="sidebar-badge">{{ notifications_count }}</span>{% endif %}</a>
-    <div class="sidebar-section">Partenaires</div>
-    <a href="{% url 'clients:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'clients' %}active{% endif %}"><i class="bi bi-people"></i><span>Clients</span></a>
-    <a href="{% url 'fournisseurs:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'fournisseurs' %}active{% endif %}"><i class="bi bi-truck"></i><span>Fournisseurs</span></a>
-    <div class="sidebar-section">Catalogue</div>
-    <a href="{% url 'produits:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'produits' %}active{% endif %}"><i class="bi bi-box-seam"></i><span>Produits</span>{% if alertes_stock_count %}<span class="sidebar-badge">{{ alertes_stock_count }}</span>{% endif %}</a>
-    <div class="sidebar-section">Documents</div>
-    <a href="{% url 'ventes:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'ventes' %}active{% endif %}"><i class="bi bi-receipt"></i><span>Factures</span></a>
-    <a href="{% url 'devis:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'devis' %}active{% endif %}"><i class="bi bi-file-text"></i><span>Devis</span></a>
-    <a href="{% url 'achats:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'achats' %}active{% endif %}"><i class="bi bi-cart3"></i><span>Achats</span></a>
-    <div class="sidebar-section">Opérations</div>
-    <a href="{% url 'services:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'services' %}active{% endif %}"><i class="bi bi-tools"></i><span>Services</span></a>
-    <a href="{% url 'locations:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'locations' %}active{% endif %}"><i class="bi bi-calendar2-week"></i><span>Locations</span></a>
-    <a href="{% url 'comptabilite:historique' %}" class="sidebar-item {% if request.resolver_match.app_name == 'comptabilite' %}active{% endif %}"><i class="bi bi-cash-stack"></i><span>Comptabilité</span></a>
-    <div class="sidebar-section">Analyse</div>
-    <a href="{% url 'rapports:index' %}" class="sidebar-item {% if request.resolver_match.app_name == 'rapports' %}active{% endif %}"><i class="bi bi-bar-chart-line"></i><span>Rapports</span></a>
+    <a href="{% url 'core:notifications' %}" class="sidebar-item"><i class="bi bi-bell{% if notifications_count %}-fill{% endif %}" {% if notifications_count %}style="color:#fbbf24"{% endif %}></i><span>Notifications</span>{% if notifications_count %}<span class="sidebar-badge">{{ notifications_count }}</span>{% endif %}</a>
+
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'clients' or request.resolver_match.app_name == 'fournisseurs' %}true{% else %}false{% endif %}" aria-controls="partnersMenu"><i class="bi bi-people group-icon"></i><span>Partenaires</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'clients' or request.resolver_match.app_name == 'fournisseurs' %}open{% endif %}" id="partnersMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'clients:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'clients' %}active{% endif %}"><i class="bi bi-person"></i><span>Clients</span></a>
+        <a href="{% url 'fournisseurs:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'fournisseurs' %}active{% endif %}"><i class="bi bi-truck"></i><span>Fournisseurs</span></a>
+      </div></div>
+    </div>
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'produits' %}true{% else %}false{% endif %}" aria-controls="catalogMenu"><i class="bi bi-box-seam group-icon"></i><span>Catalogue</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'produits' %}open{% endif %}" id="catalogMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'produits:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'produits' %}active{% endif %}"><i class="bi bi-box"></i><span>Produits</span>{% if alertes_stock_count %}<span class="sidebar-badge">{{ alertes_stock_count }}</span>{% endif %}</a>
+        <a href="{% url 'produits:categories' %}" class="sidebar-item"><i class="bi bi-tags"></i><span>Catégories</span></a>
+        <a href="{% url 'produits:alertes' %}" class="sidebar-item"><i class="bi bi-exclamation-triangle"></i><span>Alertes stock</span></a>
+      </div></div>
+    </div>
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'ventes' or request.resolver_match.app_name == 'devis' or request.resolver_match.app_name == 'achats' %}true{% else %}false{% endif %}" aria-controls="documentsMenu"><i class="bi bi-file-earmark-text group-icon"></i><span>Documents</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'ventes' or request.resolver_match.app_name == 'devis' or request.resolver_match.app_name == 'achats' %}open{% endif %}" id="documentsMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'ventes:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'ventes' %}active{% endif %}"><i class="bi bi-receipt"></i><span>Factures</span></a>
+        <a href="{% url 'devis:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'devis' %}active{% endif %}"><i class="bi bi-file-text"></i><span>Devis</span></a>
+        <a href="{% url 'achats:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'achats' %}active{% endif %}"><i class="bi bi-cart3"></i><span>Achats</span></a>
+      </div></div>
+    </div>
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'services' or request.resolver_match.app_name == 'locations' or request.resolver_match.app_name == 'comptabilite' %}true{% else %}false{% endif %}" aria-controls="operationsMenu"><i class="bi bi-briefcase group-icon"></i><span>Opérations</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'services' or request.resolver_match.app_name == 'locations' or request.resolver_match.app_name == 'comptabilite' %}open{% endif %}" id="operationsMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'services:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'services' %}active{% endif %}"><i class="bi bi-tools"></i><span>Services</span></a>
+        <a href="{% url 'locations:liste' %}" class="sidebar-item {% if request.resolver_match.app_name == 'locations' %}active{% endif %}"><i class="bi bi-calendar2-week"></i><span>Locations</span></a>
+        <a href="{% url 'comptabilite:historique' %}" class="sidebar-item {% if request.resolver_match.app_name == 'comptabilite' %}active{% endif %}"><i class="bi bi-cash-stack"></i><span>Comptabilité</span></a>
+      </div></div>
+    </div>
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'rapports' %}true{% else %}false{% endif %}" aria-controls="reportsMenu"><i class="bi bi-bar-chart-line group-icon"></i><span>Analyse</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'rapports' %}open{% endif %}" id="reportsMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'rapports:index' %}" class="sidebar-item {% if request.resolver_match.app_name == 'rapports' %}active{% endif %}"><i class="bi bi-grid-1x2"></i><span>Rapports</span></a>
+        <a href="{% url 'rapports:ventes' %}" class="sidebar-item"><i class="bi bi-graph-up-arrow"></i><span>Ventes</span></a>
+        <a href="{% url 'rapports:stock' %}" class="sidebar-item"><i class="bi bi-boxes"></i><span>Stock</span></a>
+      </div></div>
+    </div>
     {% if user.est_admin %}
-    <div class="sidebar-section">Administration</div>
-    <a href="{% url 'auth:utilisateurs' %}" class="sidebar-item"><i class="bi bi-person-gear"></i><span>Utilisateurs</span></a>
-    <a href="{% url 'auth:logs' %}" class="sidebar-item"><i class="bi bi-journal-text"></i><span>Journal</span></a>
-    <a href="{% url 'auth:security_dashboard' %}" class="sidebar-item"><i class="bi bi-shield-check"></i><span>Sécurité</span></a>
-    <a href="{% url 'core:parametres' %}" class="sidebar-item"><i class="bi bi-gear-fill"></i><span>Paramètres</span></a>
+    <div class="sidebar-group">
+      <button class="sidebar-group-toggle" type="button" aria-expanded="{% if request.resolver_match.app_name == 'auth' or request.resolver_match.app_name == 'core' %}true{% else %}false{% endif %}" aria-controls="adminMenu"><i class="bi bi-shield-lock group-icon"></i><span>Administration</span><i class="bi bi-chevron-down chevron"></i></button>
+      <div class="sidebar-submenu {% if request.resolver_match.app_name == 'auth' or request.resolver_match.app_name == 'core' %}open{% endif %}" id="adminMenu"><div class="sidebar-submenu-inner">
+        <a href="{% url 'auth:utilisateurs' %}" class="sidebar-item"><i class="bi bi-person-gear"></i><span>Utilisateurs</span></a>
+        <a href="{% url 'auth:logs' %}" class="sidebar-item"><i class="bi bi-journal-text"></i><span>Journal</span></a>
+        <a href="{% url 'auth:security_dashboard' %}" class="sidebar-item"><i class="bi bi-shield-check"></i><span>Sécurité</span></a>
+        <a href="{% url 'core:parametres' %}" class="sidebar-item"><i class="bi bi-gear-fill"></i><span>Paramètres</span></a>
+      </div></div>
+    </div>
     {% endif %}
   </div>
   <div class="sidebar-footer">
@@ -207,6 +245,16 @@ function closeSidebar(){ sidebarEl.classList.remove('open'); overlayEl.classList
 
 if(toggleBtn){ toggleBtn.addEventListener('click', openSidebar); }
 if(overlayEl){ overlayEl.addEventListener('click', closeSidebar); }
+
+// Menus déroulants de la barre latérale
+document.querySelectorAll('.sidebar-group-toggle').forEach(button => {
+  button.addEventListener('click', () => {
+    const menu = document.getElementById(button.getAttribute('aria-controls'));
+    const expanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!expanded));
+    if(menu) menu.classList.toggle('open', !expanded);
+  });
+});
 
 // Fermer automatiquement la sidebar après un clic sur un lien (mobile)
 document.querySelectorAll('.sidebar-item, .sidebar-footer a').forEach(link => {
